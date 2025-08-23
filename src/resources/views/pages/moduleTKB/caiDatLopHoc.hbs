@@ -1,0 +1,192 @@
+<div class="row add-class mb-4">
+    <h1 class="title-add-class text-center mb-4">Tạo lớp học mới</h1>
+
+    <div id="manualForm">
+        <form id="createClassForm" enctype="multipart/form-data" class="col-md-10 offset-md-1">
+            <!-- Khối -->
+            <div class="mb-3">
+                <label class="form-label">Khối</label>
+                <select class="form-select" name="Khoi" required>
+                    <option value="">-- Chọn khối --</option>
+                    <option value="1">Khối 1</option>
+                    <option value="2">Khối 2</option>
+                    <option value="3">Khối 3</option>
+                    <option value="4">Khối 4</option>
+                    <option value="5">Khối 5</option>
+                </select>
+            </div>
+
+            <!-- Tên lớp -->
+            <div class="mb-3">
+                <label class="form-label">Tên lớp</label>
+                <input type="text" class="form-control" name="TenLop" required>
+            </div>
+
+            <!-- Giáo viên chủ nhiệm -->
+            <div class="mb-3">
+                <label class="form-label">Giáo viên chủ nhiệm</label>
+                <input type="text" class="form-control" name="TenGiaoVien" required>
+            </div>
+
+            <!-- Bảng chọn môn -->
+            <div class="mb-3">
+                <label class="form-label">Chọn môn học</label>
+                <table id="dataTable" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Chọn</th>
+                            <th>Môn học</th>
+                            <th>Số tiết</th>
+                            <th>Giáo viên</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each subjects}}
+                        <tr data-id="{{this._id}}" data-name="{{this.name}}">
+                            <td><input type="checkbox" class="subject-check"></td>
+                            <td>{{this.name}}</td>
+                            <td>
+                                <input type="number" class="form-control period-input" min="0" value="0" placeholder="0">
+                            </td>
+                            <td class="teacher-cell">
+                                {{#if this.ChuyenMon}}
+                                    {{#if (eq this.name "Tiếng Việt")}}
+                                        <span class="text-primary fw-bold teacher-text gvcn">Chưa có giáo viên</span>
+                                    {{else if (eq this.name "Toán")}}
+                                        <span class="text-primary fw-bold teacher-text gvcn">Chưa có giáo viên</span>
+                                    {{else if (eq this.name "SHTT")}}
+                                        <span class="text-primary fw-bold teacher-text gvcn">Chưa có giáo viên</span>
+                                    {{else}}
+                                        {{#if this.teacher}}
+                                            <span class="teacher-text">{{this.teacher}}</span>
+                                        {{else}}
+                                            <span class="text-muted">Chưa có giáo viên</span>
+                                        {{/if}}
+                                    {{/if}}
+                                {{else}}
+                                    <span class="text-muted small">Môn không yêu cầu chuyên môn</span>
+                                {{/if}}
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Submit -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-system btn-submit" id="submitBtn">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const table = $("#dataTable").DataTable();
+
+    // Khi nhập số tiết thì tự tick checkbox
+    $("#dataTable").on("input", ".period-input", function () {
+        const row = $(this).closest("tr");
+        row.find(".subject-check").prop("checked", true);
+    });
+
+    // Khi thay đổi tên GVCN thì gán vào 3 môn: Tiếng Việt, Toán, SHTT
+    $("input[name='TenGiaoVien']").on("change", function () {
+        const gvcn = $(this).val().trim();
+        $(".teacher-cell").each(function () {
+            const subjectName = $(this).closest("tr").data("name");
+            if (["Tiếng Việt", "Toán", "SHTT"].includes(subjectName)) {
+                $(this).find(".gvcn").text(gvcn || "Chưa có giáo viên");
+            }
+        });
+    }).trigger("change");
+
+    // Xử lý submit
+    document.getElementById("createClassForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        let subjects = [];
+        let valid = true;
+        const gvcn = this.TenGiaoVien.value.trim();
+
+        table.rows().every(function () {
+            const row = $(this.node());
+            const checkbox = row.find(".subject-check")[0];
+
+            if (checkbox && checkbox.checked) {
+                const soTiet = +row.find(".period-input").val() || 0;
+                const subjectId = row.attr("data-id");
+                const subjectName = row.data("name");
+                let teacher = "";
+
+                if (["Tiếng Việt", "Toán", "SHTT"].includes(subjectName)) {
+                    teacher = gvcn;
+                } else {
+                    teacher = row.find(".teacher-text").text().trim();
+                }
+
+                if (soTiet <= 0) {
+                    row.find(".period-input").addClass("is-invalid");
+                    valid = false;
+                } else {
+                    row.find(".period-input").removeClass("is-invalid");
+                }
+
+                subjects.push({
+                    subjectId,
+                    SoTiet: soTiet,
+                    teacher
+                });
+            }
+        });
+
+        if (!valid) {
+            Swal.fire("Cảnh báo", "Vui lòng nhập số tiết hợp lệ cho các môn đã chọn!", "warning");
+            return;
+        }
+
+        if (subjects.length === 0) {
+            Swal.fire("Cảnh báo", "Vui lòng chọn ít nhất 1 môn học!", "warning");
+            return;
+        }
+
+        const formData = {
+            TenLop: this.TenLop.value.trim(),
+            TenGiaoVien: gvcn,
+            Khoi: this.Khoi.value,
+            subjects
+        };
+
+        console.log("Form Data gửi đi:", formData);
+
+        try {
+            const res = await fetch("/api/tkb/caiDatLopHoc/create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                Swal.fire({
+                    title: "Thành công!",
+                    text: data.message || "Lớp học đã được tạo mới!",
+                    icon: "success",
+                    confirmButtonText: "OK"
+                }).then(() => location.reload());
+            } else {
+                Swal.fire({
+                    title: "Lỗi!",
+                    text: data.message || "Có lỗi xảy ra.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            }
+        } catch (err) {
+            console.error("Fetch error:", err);
+            Swal.fire("Lỗi!", "Không thể gửi dữ liệu đến server", "error");
+        }
+    });
+});
+</script>

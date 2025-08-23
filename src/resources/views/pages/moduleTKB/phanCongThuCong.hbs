@@ -1,0 +1,74 @@
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Phân công thủ công</h2>
+
+  <!-- Chọn lớp -->
+  <div class="mb-3">
+    <label for="classSelect" class="form-label">Chọn lớp</label>
+    <select id="classSelect" class="form-select">
+      {{#each classes}}
+        <option value="{{this._id}}">{{this.TenLop}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <!-- Bảng TKB -->
+  <table class="table table-bordered text-center align-middle">
+    <thead>
+      <tr>
+        <th>Tiết / Thứ</th>
+        <th>Thứ 2</th>
+        <th>Thứ 3</th>
+        <th>Thứ 4</th>
+        <th>Thứ 5</th>
+        <th>Thứ 6</th>
+        <th>Thứ 7</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each periods}} <!-- periods = [1,2,3,4,5,6,...] -->
+        <tr>
+          <td>Tiết {{this}}</td>
+          {{#each ../days}} <!-- days = [2,3,4,5,6,7] -->
+            <td>
+              <!-- Dropdown môn -->
+              <select class="form-select subject-select" data-period="{{@../index}}" data-day="{{this}}">
+                <option value="">-- Môn --</option>
+                {{#each ../../subjects}}
+                  <option value="{{this._id}}">{{this.name}}</option>
+                {{/each}}
+              </select>
+
+              <!-- Dropdown giáo viên -->
+              <select class="form-select teacher-select mt-1" data-period="{{@../index}}" data-day="{{this}}">
+                <option value="">-- Giáo viên --</option>
+                {{#each ../../teachers}}
+                  <option value="{{this._id}}">{{this.fullName}}</option>
+                {{/each}}
+              </select>
+            </td>
+          {{/each}}
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <!-- Nút lưu -->
+  <div class="text-center mt-3">
+    <button id="saveSchedule" class="btn btn-system btn-submit">Lưu phân công</button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const saveBtn = document.getElementById("saveSchedule");
+    saveBtn.addEventListener("click", async function() {
+      Swal.fire({
+                  title: 'Tính năng đang phát triển!',
+                  text: 'Huệ Trung sẽ sớm cập nhật tính năng này.',
+                  icon: 'info',
+                  confirmButtonText: 'Đóng'
+            });
+            return false;
+            });
+  });
+</script>

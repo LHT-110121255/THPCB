@@ -1,0 +1,240 @@
+<div class="row add-user mb-4">
+    <h1 class="title-add-user text-center mb-4">Thêm giảng viên mới</h1>
+
+    <!-- Chọn phương thức nhập -->
+    <div class="d-flex justify-content-center mb-4">
+        <button class="btn btn-darks me-2" id="manualBtn">Tạo thủ công</button>
+        <button class="btn btn-choicefile" id="fileBtn">Tạo bằng file</button>
+    </div>
+
+    <!-- Form thêm thủ công -->
+    <div id="manualForm" style="display: none;">
+        <form id="createTeacherForm" enctype="multipart/form-data" class="col-md-6 offset-md-3">
+            <div class="mb-3">
+                <label class="form-label">Tên giảng viên</label>
+                <input type="text" class="form-control" name="name" id="name" placeholder="Example: Nhan Minh Phúc">
+                <div class="text-danger" id="nameError"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" name="email" id="email" placeholder="Example: minhphuc@tvu.edu.vn">
+                <div class="text-danger" id="emailError"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Số điện thoại</label>
+                <input type="text" class="form-control" name="phone" id="phone" placeholder="Example: 01478523xxxx">
+                <div class="text-danger" id="phoneError"></div>
+            </div>
+
+            {{!-- <div class="mb-3">
+                <label class="form-label">Địa chỉ</label>
+                <input type="text" class="form-control" name="address" id="address" placeholder="Examples: Trà Vinh">
+                <div id="addressError" class="text-danger"></div>
+            </div> --}}
+
+            <div class="mb-3">
+                <label class="form-label">Chuyên ngành</label>
+                <input type="text" class="form-control" name="department" id="department" placeholder="Example: Công nghệ thông tin">
+                <div class="text-danger" id="departmentError"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Đơn vị</label>
+                <input type="text" class="form-control" name="unit" id="unit" placeholder="Example: Phòng HCTH">
+                <div id="unitError" class="text-danger"></div>
+            </div>
+
+            {{!-- <div class="mb-3">
+                <label class="form-label">Ảnh đại diện</label>
+                <input type="file" class="form-control" name="avatar" id="avatar">
+                <div id="avatarError" class="text-danger"></div>
+            </div> --}}
+
+            <div class="d-flex" style="float: right;">
+                <button type="submit" class="btn btn-system btn-submit" id="submitBtn">Tạo mới</button>
+                <button type="button" onclick="javascript:history.back()" class="btn btn-secondary btn-previou">Quay lại</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Form thêm bằng file -->
+    <div id="fileForm" style="display: none;">
+        <form id="importTeacherForm" enctype="multipart/form-data" class="col-md-6 offset-md-3">
+            <div class="mb-3">
+                <label class="form-label">Tải file (CSV)</label>
+                <input type="file" class="form-control" name="file" id="file" accept=".csv">
+                <div class="text-danger" id="fileError"></div>
+                <div class="text-danger" id="rowError"></div>
+            </div>
+
+            <div class="d-flex" style="float: right;">
+                <a class="btn btn-darks mr-2" href="https://drive.google.com/uc?export=download&id=15F4XA4jwTPQtT_ghwtMmMeXtztIttzjT">File mẫu</a>
+                <button type="submit" class="btn btn-system btn-submit">Tải lên</button>
+                <button type="button" onclick="javascript:history.back()" class="btn btn-secondary btn-previou">Quay lại</button>
+            </div>
+
+        </form>
+
+        {{!-- <!-- Danh sách file đã tải lên -->
+        <h3 class="mt-4">Nội dung tải lên</h3>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Họ tên</th>
+                            <th>Email</th>
+                            <th>Số điện thoại</th>
+                            <th>Phòng ban</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each teachers}}
+                        <tr>
+                            <td>{{this.name}}</td>
+                            <td>{{this.email}}</td>
+                            <td>{{this.phone}}</td>
+                            <td>{{this.department}}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <img width="30px" src="/img/dotsMenu.png" alt="">
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a class="dropdown-item" href="/users/updateUser/{{this._id}}"><i class="fa-regular fa-pen-to-square"></i> Chỉnh sửa</a>
+                                        <a class="dropdown-item" onclick="confirmDelete('{{this._id}}')"><i class="fa-regular fa-trash-can"></i> Xoá</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+                <button type="button" onclick="javascript:history.back()" class="btn btn-secondary btn-previou">Quay lại</button>
+            </div>
+        </div> --}}
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const manualBtn = document.getElementById("manualBtn");
+    const fileBtn = document.getElementById("fileBtn");
+    const manualForm = document.getElementById("manualForm");
+    const fileForm = document.getElementById("fileForm");
+
+    // Kiểm tra nếu phần tử tồn tại trước khi gán sự kiện
+    if (manualBtn && fileBtn && manualForm && fileForm) {
+        // Ẩn cả hai form ban đầu
+        manualForm.style.display = "none";
+        fileForm.style.display = "none";
+
+        // Khi bấm "Add Manually" thì hiển thị form thủ công, ẩn form file
+        manualBtn.addEventListener("click", function() {
+            manualForm.style.display = "block";
+            fileForm.style.display = "none";
+        });
+
+        // Khi bấm "Import from File" thì hiển thị form file, ẩn form thủ công
+        fileBtn.addEventListener("click", function() {
+            manualForm.style.display = "none";
+            fileForm.style.display = "block";
+        });
+    }
+
+    document.getElementById("createTeacherForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+
+        try {
+            const response = await fetch("/api/teacher/create", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            document.querySelectorAll(".text-danger").forEach(el => el.innerText = "");
+
+            if (!data.success) {
+                Object.keys(data.errors).forEach(key => {
+                    document.getElementById(`${key}Error`).innerText = data.errors[key];
+                });
+            } else {
+                Swal.fire({
+                    title: "Thành công!",
+                    text: "Giảng viên đã được tạo thành công!",
+                    icon: "success",
+                    confirmButtonText: "OK"
+                }).then(() => {
+                    window.location.href = "/users/ListAllTeacher";
+                });
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            Swal.fire('Lỗi', 'Có lỗi xảy ra, vui lòng thử lại', 'error');
+        }
+    });
+
+    document.getElementById("importTeacherForm").addEventListener("submit", async function (event) {
+        event.preventDefault();  // Ngăn chặn form gửi theo mặc định
+        const formData = new FormData(this);  // Lấy dữ liệu từ form
+
+        try {
+            // Gửi yêu cầu POST với dữ liệu form
+            const response = await fetch("/api/teacher/import", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            console.log(data);
+            // Xóa tất cả lỗi cũ
+            document.querySelectorAll(".text-danger").forEach(el => el.innerText = "");
+
+            // Kiểm tra nếu không thành công
+            if (!data.success) {
+                // Hiển thị lỗi nếu có
+                if (data.errors && data.errors.length > 0) {
+                    // Lặp qua các lỗi và hiển thị
+                    data.errors.forEach(error => {
+                        if (error.error === "Định dạng file không đúng, thiếu cột bắt buộc.") {
+                            document.getElementById("fileError").innerText = "Lỗi: Thiếu các cột bắt buộc: name, email, phone, department.";
+                        } else if (error.error === "Định dạng file không đúng, cột thừa.") {
+                            document.getElementById("fileError").innerText = "Lỗi: Có cột thừa trong file CSV.";
+                        } else if (error.error.name) {
+                            console.log(error.error.name);
+                            document.getElementById("fileError").innerText = `Lỗi: Tên giảng viên: ${error.error.name}` ;
+                        } else if (error.error.email) {
+                            document.getElementById("fileError").innerText = `Lỗi: Email: ${error.error.email}` ;
+                        } else if (error.error.phone) {
+                            document.getElementById("fileError").innerText = `Lỗi: Số điện thoại: ${error.error.phone}` ;
+                        } else if (error.error.department) {
+                            document.getElementById("fileError").innerText = `Lỗi: Chuyên ngành: ${error.error.department}` ;
+                        }
+                            document.getElementById("rowError").innerText = JSON.stringify(error.row, null, 2);
+                            
+                    });
+                }
+            } else {
+                Swal.fire({
+                    title: "Thành công!",
+                    text: "Tệp tin đã được tải lên thành công!",
+                    icon: "success",
+                    confirmButtonText: "OK"
+                }).then(() => {
+                    window.location.href = "/users/ListAllTeacher";  // Điều hướng sau khi thành công
+                });
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            Swal.fire('Lỗi', 'Có lỗi xảy ra, vui lòng thử lại', 'error');
+        }
+    });
+
+});
+</script>

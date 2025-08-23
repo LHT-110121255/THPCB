@@ -1,0 +1,88 @@
+<div class="box">
+    <div class="row w-100">
+        <div class="col-sm">
+            <div class="text-center">
+                <img src="img/logo-short.png" style="width: 150px" alt="logo" />
+                <h4 class="mt-1 mb-5 pb-1 title-login">Tiểu học Phú Cần B</h4>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="text" id="email" class="form-control" required />
+                    <label for="email">Tài khoản</label>
+                    <div id="emailError" class="text-danger" style="display: none;"></div>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" id="password" class="form-control" required />
+                    <label for="password">Mật khẩu</label>
+                    <div id="passwordError" class="text-danger" style="display: none;"></div>
+                </div>
+
+                <div class="text-center pt-1 mb-5 pb-1">
+                    <button class="btn btn-login btn-block" type="submit">Đăng nhập</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+      setTimeout(() => {
+          document.querySelector(".box").classList.add("show");
+      }, 100);
+  });
+
+  document.getElementById("loginForm").addEventListener("submit", async function(event) {
+    event.preventDefault(); 
+
+    const username = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            Swal.fire({
+                title: "Thành công",
+                text: result.message,
+                icon: "success",
+                timer: 2000,
+                showConfirmButton: false,
+            }).then(() => {
+                window.location.href = "/home";
+            });
+        } else {
+            if (result.errors) {
+                if (result.errors.username) {
+                    document.getElementById("emailError").textContent = result.errors.username;
+                    document.getElementById("emailError").style.display = "block";
+                } else {
+                    document.getElementById("emailError").style.display = "none";
+                }
+                if (result.errors.password) {
+                    document.getElementById("passwordError").textContent = result.errors.password;
+                    document.getElementById("passwordError").style.display = "block";
+                } else {
+                    document.getElementById("passwordError").style.display = "none";
+                }
+            }
+        }
+    } catch (error) {
+        Swal.fire({
+            title: "Lỗi",
+            text: "Có lỗi xảy ra. Vui lòng thử lại.",
+            icon: "error",
+            timer: 3000,
+            showConfirmButton: false,
+        });
+    }
+});
+</script>

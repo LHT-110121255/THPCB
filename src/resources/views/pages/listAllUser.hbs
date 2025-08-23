@@ -1,0 +1,149 @@
+<div class="card shadow mb-4" id="page-top">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Danh sách tài khoản</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Trạng thái</th>
+                        <th>Tài khoản</th>
+                        <th>Họ tên</th>
+                        <th>Số điện thoại</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each accounts}}
+                    <tr>
+                        <td>{{increment @index}}</td>
+                        <td style="color: {{#if this.isDeleted}} red {{else}} green {{/if}}">
+                            {{#if this.isDeleted}} Vô hiệu hóa {{else}} Đang hoạt động {{/if}}
+                        </td>
+                        <td>{{this.username}}</td>
+                        <td>{{this.profile.fullName}}</td>
+                        <td>{{this.profile.phone}}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <img width="30px" src="/img/dotsMenu.png" alt="">
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <!-- View -->
+                                    <a class="dropdown-item" href="/users/profile/{{this._id}}"><i class="fa-brands fa-openid"></i> Xem thêm</a>
+
+                                    <!-- Edit -->
+                                    <a class="dropdown-item" href="/users/updateUser/{{this._id}}"><i class="fa-regular fa-pen-to-square"></i> Chỉnh sửa</a>
+                                    
+                                    <!-- Disable/Restore -->
+                                    {{#if this.isDeleted}}
+                                        <a class="dropdown-item" onclick="confirmRestore('{{this._id}}')"><i class="fa-regular fa-eye"></i> khôi phục</a>
+                                    {{else}}
+                                        <a class="dropdown-item" onclick="confirmDisable('{{this._id}}')"><i class="fa-regular fa-eye-slash"></i> Vô hiệu hoá</a>
+                                    {{/if}}
+
+                                    <!-- Delete -->
+                                    <a class="dropdown-item" onclick="confirmDelete('{{this._id}}')"><i class="fa-regular fa-trash-can"></i> Xoá</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+            <button type="button" onclick="javascript:history.back()" class="btn btn-secondary btn-previou">Back</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Common function for confirming actions
+    function confirmAction(action, idUser) {
+        const messages = {
+            disable: 'Vô hiệu hóa người dùng này?',
+            restore: 'Khôi phục người dùng này?',
+        };
+
+        Swal.fire({
+            title: messages[action],
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Đồng ý',
+            cancelButtonText: 'Hủy',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/api/user/${action}/${idUser}`, { method: 'PUT' })
+                    .then(response => response.ok ? response.json() : Promise.reject('Lỗi khi thực hiện hành động'))
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: `Người dùng đã được ${ action === 'disable' ? 'vô hiệu hóa' : 'khôi phục'}!`,
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => { if (data.success) location.reload(); });
+                        } else {
+                            Swal.fire({
+                                title: 'Không thể thực hiện hành động!',
+                                text: data.message || 'Đã xảy ra lỗi không xác định.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    })
+                    .catch(error => Swal.fire({ title: 'Có lỗi xảy ra!', icon: 'error', confirmButtonText: 'OK' }));
+            }
+        });
+    }
+
+    // Confirm Disable user
+    function confirmDisable(idUser) {
+        confirmAction('disable', idUser);
+    }
+
+    // Confirm Restore user
+    function confirmRestore(idUser) {
+        confirmAction('restore', idUser);
+    }
+
+    // Confirm Delete user
+    function confirmDelete(idUser) {
+        const messages = {
+            delete: 'Xóa người dùng này?'
+        };
+
+        Swal.fire({
+            title: messages['delete'],
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Đồng ý',
+            cancelButtonText: 'Hủy',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/api/user/delete/${idUser}`, { method: 'DELETE' })
+                    .then(response => response.ok ? response.json() : Promise.reject('Lỗi khi thực hiện hành động'))
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: `Người dùng đã được xóa !`,
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => { if (data.success) location.reload(); });
+                        } else {
+                            Swal.fire({
+                                title: 'Không thể thực hiện hành động!',
+                                text: data.message || 'Đã xảy ra lỗi không xác định.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({ title: 'Có lỗi xảy ra!', icon: 'error', confirmButtonText: 'OK' })
+                    console.log(error);
+            });
+            }
+        });
+    }
+</script>

@@ -1,0 +1,40 @@
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">User Borrow/Return Statistics</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Biểu đồ mượn trả thiết bị -->
+            <div class="col-lg-12">
+                <canvas id="borrowReturnChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    new Chart(document.getElementById("borrowReturnChart"), {
+        type: "line",
+        data: {
+            labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+            datasets: [{
+                label: "Borrowed",
+                data: [10, 15, 25, 20, 30], // Dữ liệu demo
+                borderColor: "#17a2b8",
+                fill: false
+            }, {
+                label: "Returned",
+                data: [5, 12, 22, 18, 28],
+                borderColor: "#28a745",
+                fill: false
+            }]
+        },
+        options: {
+            title: { display: true, text: "Borrow/Return Statistics Over Time" },
+            responsive: true
+        }
+    });
+});
+</script>

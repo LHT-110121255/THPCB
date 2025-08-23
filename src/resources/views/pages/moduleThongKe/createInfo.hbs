@@ -1,0 +1,88 @@
+<div class="row create-info mb-4">
+    <h1 class="title-add-user text-center mb-4">Tạo thông tin</h1>
+
+    <div id="manualForm">
+        <form id="createInfoTkForm" enctype="multipart/form-data" class="col-md-6 offset-md-3">
+
+            <div class="mb-3">
+                <label class="form-label">Tên module</label>
+                <input type="text" class="form-control" name="name" id="name" placeholder="Example: Báo cáo sinh viên">
+                <div id="nameError" class="text-danger"></div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mô tả</label>
+                <textarea type="text" class="form-control" name="description" id="description" placeholder="Example: Báo cáo sinh viên năm 2025"></textarea>  
+                <div id="descriptionError" class="text-danger"></div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Trạng thái</label>
+                <select class="form-control" name="status" id="status">
+                    <option value="draft">Nháp</option>
+                    <option value="active">Kích hoạt</option>
+                    <option value="archived">Lưu trữ</option>
+                </select>
+            </div>
+            <div class="d-flex" style="float: right;">
+                <button type="submit" class="btn btn-system btn-submit">Tạo mới</button>
+                <button type="button" onclick="javascript:history.back()" class="btn btn-secondary btn-previou">Quay lại</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById("createInfoTkForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+        const response = await fetch("/api/thong-ke/info/create", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        // Xóa lỗi cũ
+        document.querySelectorAll(".text-danger").forEach(el => el.innerText = "");
+
+        // Nếu lỗi validate
+        if (response.status === 400 && data.errors) {
+            Object.keys(data.errors).forEach(key => {
+                const errorEl = document.getElementById(`${key}Error`);
+                if (errorEl) {
+                    errorEl.innerText = data.errors[key];
+                } else {
+                    // Nếu không tìm thấy chỗ hiển thị thì show alert
+                    Swal.fire({
+                        title: "Lỗi!",
+                        text: data.errors[key],
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    });
+                }
+            });
+            return; // dừng tại đây
+        }
+
+        // Nếu thành công
+        if (data.success) {
+            Swal.fire({
+                title: "Thành công!",
+                text: "Module đã được tạo thành công!",
+                icon: "success",
+                confirmButtonText: "OK"
+            }).then(() => {
+                window.location.href = "/thong-ke/list"; // đổi link theo ý bạn
+            });
+            return;
+        }
+
+        // Nếu lỗi khác
+        Swal.fire({
+            title: "Lỗi!",
+            text: data.message || "Đã xảy ra lỗi khi tạo module.",
+            icon: "error",
+            confirmButtonText: "OK"
+        });
+    });
+</script>

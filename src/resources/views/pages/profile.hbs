@@ -1,0 +1,208 @@
+<div class="row" id="page-top">
+    <div class="col-md-4 text-center">
+        <img id="profileAvatar" class="rounded-square img-thumbnail" alt="Admin Profile Picture">
+        <p class="text-muted" id="userRole"></p>
+    </div>
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Thông tin chi tiết</h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <!-- Thông tin cá nhân -->
+                    <li class="list-group-item"><strong>Họ tên: </strong><span id="userFullName"></span></li>
+                    <li class="list-group-item"><strong>Tài khoản: </strong><span id="userUsername"></span></li>
+                    <li class="list-group-item"><strong>Ngày sinh: </strong><span id="userBirthDate"></span></li>
+                    <li class="list-group-item"><strong>Số điện thoại: </strong><span id="userPhone"></span></li>
+                    <li class="list-group-item"><strong>Email: </strong><span id="email"></span></li>
+                    <li class="list-group-item"><strong>Địa chỉ: </strong><span id="userAddress"></span></li>
+
+                    <!-- Thông tin chuyên môn -->
+                    <li class="list-group-item info-teacher" style="display: none;"><strong>Môn giảng dạy: </strong><span id="subjectSpecialization"></span></li>
+                    <li class="list-group-item info-teacher" style="display: none;"><strong>Trình độ: </strong><span id="academicLevel"></span></li>
+                    <li class="list-group-item info-teacher" style="display: none;"><strong>Thâm niên: </strong><span id="yearsOfExperience"></span></li>
+                    <li class="list-group-item info-teacher" style="display: none;"><strong>Thời gian vào trường: </strong><span id="hireDate"></span></li>
+                    <li class="list-group-item info-teacher" style="display: none;"><strong>Tổ: </strong><span id="department"></span></li>
+                    <li class="list-group-item info-teacher" style="display: none;"><strong>Chức vụ: </strong><span id="position"></span></li>
+                    <li class="list-group-item info-teacher" style="display: none;"><strong>Trạng thái làm việc: </strong><span id="status"></span></li>
+
+                    <!-- Thông tin hệ thống -->
+                    <li class="list-group-item"><strong>Trạng thái tài khoản: </strong><span id="userStatus"></span></li>
+                    <li class="list-group-item"><strong>Thời gian tạo: </strong><span id="userCreatedAt"></span></li>
+                    <li class="list-group-item"><strong>Thời gian cập nhật mới nhất: </strong><span id="userUpdatedAt"></span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Form change password -->
+        <div class="card mb-4" id="changePasswordCard" style="display: none;">
+            <div class="card-header">
+                <h4>Thay đổi mật khẩu</h4>
+            </div>
+            <div class="card-body">
+                <form id="changePasswordForm" class="list-group list-group-flush col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu cũ</label>
+                        <input type="password" class="form-control" name="passwordOld" id="passwordOld"
+                            placeholder="Nhập mật khẩu cũ" required>
+                        <div id="passwordOldError" class="text-danger" style="display:none;"></div>
+                        <!-- Error message here -->
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu mới</label>
+                        <input type="password" class="form-control" name="passwordNew" id="passwordNew"
+                            placeholder="Nhập mật khẩu mới" required>
+                        <div id="passwordNewError" class="text-danger" style="display:none;"></div>
+                        <!-- Error message here -->
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary btn-submit">Đổi mật khẩu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="text-right mt-4">
+            <button type="button" onclick="javascript:history.back()" class="btn btn-secondary btn-previou">Quay
+                lại</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+    const userId = window.location.pathname.split('/').pop();  // Lấy user ID từ URL
+    const roleMap = {
+        system_admin: "Quản trị hệ thống",
+        school_admin: "Ban giám hiệu",
+        teacher: "Giáo viên",
+        student: "Học sinh",
+        parent: "Phụ huynh",
+        staff: "Nhân viên"
+    };
+
+    try {
+        // Lấy dữ liệu tỉnh và xã/phường từ API
+        const [resProvinces, resWards] = await Promise.all([
+            fetch("https://provinces.open-api.vn/api/v2/p"),
+            fetch("https://provinces.open-api.vn/api/v2/w")
+        ]);
+
+        const provinces = await resProvinces.json();
+        const wards = await resWards.json();
+
+        if (userId === 'me') {
+            // Ẩn/hiện phần thay đổi mật khẩu cho trang cá nhân
+            document.getElementById("changePasswordCard").style.display = "block";
+        }
+
+        // Lấy thông tin người dùng
+        const userRes = await fetch(`/api/user/getById/${userId}`);
+        const data = await userRes.json();
+
+        if (data.success && data.user) {
+            const profile = data.user.profile;
+
+            // Avatar
+            document.getElementById("profileAvatar").src = profile.avatar || "/img/default-avatar.jpg";
+
+            // Thông tin cơ bản
+            document.getElementById("userUsername").textContent = data.user.username;
+            document.getElementById("userRole").textContent = roleMap[data.user.role] || "Người dùng";
+            document.getElementById("userFullName").textContent = profile.fullName;
+            document.getElementById("userBirthDate").textContent = profile.birthDate 
+                ? new Date(profile.birthDate).toLocaleDateString() 
+                : "";
+            document.getElementById("userPhone").textContent = profile.phone || "";
+            document.getElementById("email").textContent = profile.email || "";
+
+            // Địa chỉ
+            const addrParts = (profile.address || "").split(",").map(s => s.trim());
+            const hamlet = addrParts[0] || "";
+            const wardCode = parseInt(addrParts[1]) || null;
+
+            if (wardCode) {
+                const ward = wards.find(w => w.code === wardCode);
+                const province = ward ? provinces.find(p => p.code === ward.province_code) : null;
+
+                document.getElementById("userAddress").textContent =
+                    `${hamlet}${ward ? `, ${ward.name}` : ""}${province ? `, ${province.name}` : ""}`;
+            } else {
+                document.getElementById("userAddress").textContent = "Chưa có thông tin";
+            }
+
+            // Trạng thái
+            document.getElementById("userStatus").textContent = data.user.isDeleted ? 'Vô hiệu hoá' : 'Đang hoạt động';
+            document.getElementById("userCreatedAt").textContent = new Date(data.user.createdAt).toLocaleString();
+            document.getElementById("userUpdatedAt").textContent = new Date(data.user.updatedAt).toLocaleString();
+
+            const infoTeacherElements = document.querySelectorAll('.info-teacher');
+
+            // Thông tin chuyên môn (nếu là giáo viên)
+            if(data.user.role == 'teacher') {
+                infoTeacherElements.forEach(el => {
+                    el.style.display = "block";
+                });
+                document.getElementById("subjectSpecialization").textContent = profile.subjectSpecialization || "Chưa cập nhật";
+                document.getElementById("academicLevel").textContent = profile.academicLevel || "Chưa cập nhật";
+                document.getElementById("yearsOfExperience").textContent = profile.yearsOfExperience || "Chưa cập nhật";
+                document.getElementById("hireDate").textContent = profile.hireDate 
+                    ? new Date(profile.hireDate).toLocaleDateString() 
+                    : "Chưa cập nhật";
+                document.getElementById("department").textContent = profile.department || "Chưa cập nhật";
+                document.getElementById("position").textContent = profile.position || "Chưa cập nhật";
+                document.getElementById("status").textContent = profile.status || "Chưa cập nhật";
+            }
+        } else {
+            Swal.fire('Lỗi', 'Không thể tải thông tin người dùng', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire('Lỗi', 'Có lỗi xảy ra khi tải dữ liệu người dùng', 'error');
+    }
+
+    // Lắng nghe sự kiện submit form thay đổi mật khẩu
+    document.getElementById("changePasswordForm").addEventListener("submit", async function(event) {
+        event.preventDefault(); // Ngăn chặn gửi form mặc định
+
+        const passwordOld = document.getElementById("passwordOld").value;
+        const passwordNew = document.getElementById("passwordNew").value;
+
+        try {
+            const res = await fetch('/api/user/changPassword', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ passwordOld, passwordNew })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                Swal.fire({
+                    title: 'Thay đổi mật khẩu thành công!',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    sessionStorage.removeItem('hasLoggedIn');
+                    fetch('/admin/logout', { method: 'POST' })
+                        .then(() => { window.location.href = '/admin'; });
+                });
+            } else {
+                if (data.errors) {
+                    document.getElementById("passwordOldError").textContent = data.errors.passwordOld || "";
+                    document.getElementById("passwordOldError").style.display = data.errors.passwordOld ? "block" : "none";
+
+                    document.getElementById("passwordNewError").textContent = data.errors.passwordNew || "";
+                    document.getElementById("passwordNewError").style.display = data.errors.passwordNew ? "block" : "none";
+                }
+                Swal.fire('Lỗi', 'Có lỗi xảy ra khi thay đổi mật khẩu', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Lỗi', 'Có lỗi xảy ra, vui lòng thử lại', 'error');
+        }
+    });
+});
+</script>

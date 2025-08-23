@@ -1,0 +1,395 @@
+<style>
+    #notificationList {
+        height: auto;
+        overflow: hidden;
+        max-height: 500px;
+        overflow-y: auto;
+        min-width: 400px;
+        padding: 0;
+        border-radius: 0.35rem;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        transition: max-height 0.3s ease;
+    }
+    /* Icon Circle */
+    .icon-circle {
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+        margin: 0;
+    }
+
+    /* Màu nền cho icon */
+    .bg-info {
+        background-color: #36b9cc;
+    }
+
+    .bg-warning {
+        background-color: #f6c23e;
+    }
+
+    /* Màu chữ mô tả và ngày tháng */
+    .text-gray-500 {
+        color: #858796;
+    }
+
+    /* Notification Item */
+    .notification-item {
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        padding: 10px 12px;
+        border-bottom: 1px solid #e3e6f0;
+        display: flex;
+        align-items: center;
+        min-height: 60px;
+    }
+
+    /* Hiệu ứng hover */
+    .notification-item:hover {
+        background-color: #f8f9fc;
+        transform: translateY(-1px);
+        cursor: pointer;
+    }
+
+    /* Tiêu đề dropdown */
+    .dropdown-header {
+        background-color: #4e73df;
+        color: white;
+        font-weight: 600;
+        font-size: 0.85rem;
+        padding: 10px 15px;
+        border-bottom: 1px solid #e3e6f0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Dropdown Menu */
+    .dropdown-menu {
+        max-height: 500px;
+        overflow-y: auto;
+        min-width: 400px;
+        padding: 0;
+        border-radius: 0.35rem;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        transition: max-height 0.3s ease;
+    }
+
+    /* Tiêu đề thông báo */
+    .font-weight-bold {
+        font-size: 0.85rem;
+        color: #2e2e2e;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: initial;
+    }
+
+    /* Mô tả và ngày giờ */
+    .small {
+        font-size: 0.7rem;
+        line-height: 1.3;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: initial;
+    }
+
+    /* Thông báo chưa đọc */
+    .notification-item.unread {
+        background-color: #e6f3ff;
+        font-weight: 600;
+    }
+
+    /* Thông báo đã đọc */
+    .notification-item.read {
+        background-color: #ffffff;
+        opacity: 0.85;
+    }
+
+    /* Màu tiêu đề thông báo chưa đọc */
+    .notification-item.unread .font-weight-bold {
+        color: #1c7ed6;
+    }
+
+    /* Màu tiêu đề thông báo đã đọc */
+    .notification-item.read .font-weight-bold {
+        color: #5a5c69;
+    }
+
+    /* Nội dung bên trong thông báo */
+    .notification-item div {
+        overflow: visible;
+        margin-right: 10px;
+    }
+
+    /* Khoảng cách giữa icon và nội dung */
+    .notification-item .mr-3 {
+        margin-right: 10px;
+    }
+
+    /* Nút "Hiển thị tất cả" */
+    .dropdown-item.text-center {
+        padding: 8px 15px;
+        background-color: #f8f9fc;
+        color: #4e73df;
+        font-weight: 500;
+        font-size: 0.8rem;
+        text-align: center;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        display: block !important;
+        visibility: visible !important;
+    }
+
+    /* Hiệu ứng hover cho nút */
+    .dropdown-item.text-center:hover {
+        background-color: #e9ecef;
+        color: #3a5bd5;
+    }
+
+    /* Dropdown khi mở rộng */
+    .dropdown-menu.expanded {
+        max-height: 600px;
+    }
+
+    /* Thanh cuộn */
+    .dropdown-menu::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .dropdown-menu::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .dropdown-menu::-webkit-scrollbar-thumb {
+        background: #d1d3e2;
+        border-radius: 3px;
+    }
+
+    .dropdown-menu::-webkit-scrollbar-thumb:hover {
+        background: #b3b7cc;
+    }
+
+    /* Responsive cho màn hình nhỏ */
+    @media (max-width: 576px) {
+        .dropdown-menu {
+            min-width: 320px;
+        }
+    }
+</style>
+
+<nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+        <i class="fa fa-bars"></i>
+    </button>
+
+    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+        <div class="input-group">
+            <input type="text" class="form-control bg-light border-0 small" placeholder="Tìm kiếm..."
+                aria-label="Search" aria-describedby="basic-addon2">
+            <div class="input-group-append">
+                <button class="btn btn-dark" type="button">
+                    <i class="fas fa-search fa-sm"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown no-arrow mx-1">
+            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-bell fa-fw"></i>
+                <span class="badge badge-danger badge-counter" id="unreadCount">0</span>
+            </a>
+            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                aria-labelledby="alertsDropdown">
+                <h6 class="dropdown-header" style="background-color: #000;">
+                    Thông Báo
+                </h6>
+                <div id="notificationList">
+                    <a class="dropdown-item d-flex align-items-center notification-item" href="#">
+                        <div class="mr-3">
+                            <div class="icon-circle bg-info">
+                                <i class="fas fa-info text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-weight-bold">Đang tải thông báo...</div>
+                        </div>
+                    </a>
+                </div>
+                <a class="dropdown-item text-center" href="#" id="showAll">Hiển thị tất cả</a>
+            </div>
+        </li>
+    </ul>
+</nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let allNotifications = [];
+        let showAll = false;
+        let userRole = null;
+
+        // Lấy thông tin người dùng và vai trò
+        async function fetchUserRole() {
+            try {
+                const response = await fetch('/api/user/me', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionStorage.getItem('token') || ''}`
+                    },
+                    credentials: 'same-origin'
+                });
+                const data = await response.json();
+                if (data.success && data.user) {
+                    userRole = data.user.role;
+                    fetchNotifications(); // Sau khi lấy role, mới gọi fetch thông báo
+                } else {
+                    Swal.fire('Lỗi', 'Không thể lấy thông tin người dùng', 'error');
+                }
+            } catch (error) {
+                console.error('Error fetching user role:', error);
+                Swal.fire('Lỗi', 'Có lỗi xảy ra khi lấy thông tin người dùng', 'error');
+            }
+        }
+
+        function filterNotificationsByRole(notifications) {
+            if (userRole === 'system_admin') {
+                return notifications; // Admin thấy tất cả thông báo
+            } else if (userRole === 'device_manager') {
+                // Device Manager chỉ thấy thông báo liên quan đến thiết bị
+                return notifications.filter(notif => 
+                    notif.title?.toLowerCase().includes('thiết bị') || 
+                    notif.description?.toLowerCase().includes('thiết bị')
+                );
+            } else if (userRole === 'gift_manager') {
+                // Gift Manager chỉ thấy thông báo liên quan đến quà tặng
+                return notifications.filter(notif => 
+                    notif.title?.toLowerCase().includes('quà tặng') || 
+                    notif.description?.toLowerCase().includes('quà tặng')
+                );
+            }
+            return [];
+        }
+
+        function renderNotifications() {
+            const notificationList = document.getElementById('notificationList');
+            const unreadCount = document.getElementById('unreadCount');
+            const showAllLink = document.getElementById('showAll');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+
+            // Lọc thông báo theo vai trò
+            const filteredNotifications = filterNotificationsByRole(allNotifications);
+            const unreadNotifications = filteredNotifications.filter(notif => !notif.readBy?.length);
+            unreadCount.textContent = unreadNotifications.length;
+
+            if (filteredNotifications.length === 0) {
+                notificationList.innerHTML = `
+                    <a class="dropdown-item d-flex align-items-center notification-item" href="#">
+                        <div class="mr-3">
+                            <div class="icon-circle bg-info">
+                                <i class="fas fa-info text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-weight-bold">Chưa có thông báo nào</div>
+                        </div>
+                    </a>
+                `;
+                showAllLink.style.display = 'none';
+                return;
+            }
+
+            const notificationsToShow = showAll ? filteredNotifications : filteredNotifications.slice(0, 5);
+            notificationList.innerHTML = notificationsToShow.map(notif => `
+                <a class="dropdown-item d-flex align-items-center notification-item ${notif.readBy?.length ? 'read' : 'unread'}" href="#" data-id="${notif._id}" data-url="${notif.url || '#'}">
+                    <div class="mr-3">
+                        <div class="icon-circle bg-${notif.type === 'info' ? 'info' : 'warning'}">
+                            <i class="fas fa-${notif.type === 'info' ? 'info' : 'exclamation-triangle'} text-white"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="font-weight-bold">${notif.title || 'Không có tiêu đề'}</div>
+                        <div class="small text-gray-500">${notif.description || 'Không có mô tả'}</div>
+                        <div class="small text-gray-500">${new Date(notif.created_at).toLocaleString('vi-VN')}</div>
+                    </div>
+                </a>
+            `).join('');
+
+            if (filteredNotifications.length <= 5) {
+                showAllLink.style.display = 'none';
+            } else {
+                showAllLink.style.display = 'block';
+                showAllLink.textContent = showAll ? 'Thu gọn' : 'Hiển thị tất cả';
+                dropdownMenu.classList.toggle('expanded', showAll);
+            }
+
+            document.querySelectorAll('.notification-item').forEach(item => {
+                item.addEventListener('click', async function (e) {
+                    e.preventDefault();
+                    const id = this.getAttribute('data-id');
+                    const url = this.getAttribute('data-url');
+
+                    if (this.classList.contains('unread')) {
+                        try {
+                            const response = await fetch(`/api/notification/read/${id}`, { method: 'PUT' });
+                            const data = await response.json();
+                            if (data.success) {
+                                this.classList.remove('unread');
+                                this.classList.add('read');
+                                unreadCount.textContent = parseInt(unreadCount.textContent) - 1;
+                                const notif = allNotifications.find(n => n._id === id);
+                                if (notif) notif.readBy = ['user'];
+                            }
+                        } catch (error) {
+                            console.error('Lỗi khi đánh dấu thông báo đã đọc:', error);
+                        }
+                    }
+
+                    if (url && url !== '#') {
+                        window.location.href = url;
+                    }
+                });
+            });
+        }
+
+        async function fetchNotifications() {
+            try {
+                const response = await fetch('/api/notification/getAll');
+                const data = await response.json();
+                if (data.success) {
+                    allNotifications = [...(data.data.unread || []), ...(data.data.read || [])];
+                    renderNotifications();
+                } else {
+                    throw new Error('API response unsuccessful');
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy thông báo:', error);
+                document.getElementById('notificationList').innerHTML = `
+                    <a class="dropdown-item d-flex align-items-center notification-item" href="#">
+                        <div class="mr-3">
+                            <div class="icon-circle bg-warning">
+                                <i class="fas fa-exclamation-triangle text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="font-weight-bold">Lỗi khi tải thông báo</div>
+                        </div>
+                    </a>
+                `;
+                document.getElementById('showAll').style.display = 'none';
+            }
+        }
+
+        // Gọi hàm lấy role người dùng trước
+        fetchUserRole();
+
+        document.getElementById('showAll').addEventListener('click', function (e) {
+            e.preventDefault();
+            showAll = !showAll;
+            renderNotifications();
+        });
+    });
+</script>

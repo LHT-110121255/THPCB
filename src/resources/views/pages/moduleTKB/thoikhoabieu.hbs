@@ -1,0 +1,267 @@
+<div class="container mt-4">
+  <div class="text-end mb-3">
+  <button class="btn btn-system btn-submit shadow" data-bs-toggle="modal" data-bs-target="#exportModal">
+    <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+  </button>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-3">
+      <div class="modal-header btn-system btn-submit text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-file-earmark-excel"></i> Xuất Excel Thời Khoá Biểu
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label for="exportTypeSelect" class="form-label fw-semibold">Chọn loại xuất:</label>
+        <select class="form-select shadow-sm" id="exportTypeSelect">
+          <option value="student" selected>📘 Thời khoá biểu học sinh</option>
+          <option value="teacher">👨‍🏫 Thời khoá biểu dạy</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle"></i> Đóng
+        </button>
+        <button class="btn btn-system btn-submit" id="btnExportExcel">
+          <i class="bi bi-download"></i> Xuất File
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <label>Chọn đối tượng</label>
+      <select id="filterTarget" class="form-select">
+        <option value="">-- Chọn --</option>
+        <option value="class">Lớp</option>
+        <option value="teacher">Giáo viên</option>
+      </select>
+    </div>
+
+    <div class="col-md-4" id="gradeGroup">
+      <label>Khối</label>
+      <select id="filterGrade" class="form-select">
+        <option value="">-- Chọn khối --</option>
+        <option value="1">Khối 1</option>
+        <option value="2">Khối 2</option>
+        <option value="3">Khối 3</option>
+        <option value="4">Khối 4</option>
+        <option value="5">Khối 5</option>
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label id="labelClassTeacher">Lớp / Giáo viên</label>
+      <select id="filterClass" class="form-select">
+        <option value="">-- Chọn --</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="timetableContainer" class="table-responsive mt-4" style="display:none;">
+    <table class="table table-bordered text-center align-middle">
+      <thead class="table-light">
+        <tr>
+          <th style="width: 150px;">Buổi / Tiết</th>
+          <th>Thứ 2</th>
+          <th>Thứ 3</th>
+          <th>Thứ 4</th>
+          <th>Thứ 5</th>
+          <th>Thứ 6</th>
+        </tr>
+      </thead>
+      <tbody id="timetableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+  const btnExportExcel = document.getElementById("btnExportExcel");
+
+  btnExportExcel.addEventListener("click", async function() {
+    const type = document.getElementById("exportTypeSelect").value;
+    const apiUrl = type === 'student' ? '/api/tkb/xuat-excel-hoc-sinh' : '/api/tkb/xuat-excel-day';
+
+    // Hiện Swal loading
+    Swal.fire({
+      title: 'Đang xử lý...',
+      text: 'Vui lòng chờ trong giây lát',
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    try {
+      const res = await fetch(apiUrl, { method: 'GET' });
+      if (!res.ok) throw new Error("Xuất file thất bại");
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = type === 'student' ? "TKB_HocSinh.xlsx" : "TKB_Day.xlsx";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      Swal.close();
+      Swal.fire("Thành công", "Xuất file Excel thành công!", "success");
+
+    } catch (err) {
+      Swal.close();
+      Swal.fire("Lỗi", err.message, "error");
+    }
+  });
+});
+document.addEventListener("DOMContentLoaded", function() {
+  const filterTarget = document.getElementById("filterTarget");
+  const filterGrade = document.getElementById("filterGrade");
+  const gradeGroup   = document.getElementById("gradeGroup");
+  const filterClass = document.getElementById("filterClass");
+  const labelClassTeacher = document.getElementById("labelClassTeacher");
+  const timetableContainer = document.getElementById("timetableContainer");
+  const timetableBody = document.getElementById("timetableBody");
+
+  let classrooms = [];
+  let teachers = [];
+
+  async function loadClassrooms() {
+    const grade = filterGrade.value || '';
+    const res = await fetch(`/api/tkb/classrooms${grade ? '?grade=' + grade : ''}`);
+    const data = await res.json();
+    if(data.success) classrooms = data.classes;
+  }
+
+  async function loadTeachers() {
+    const res = await fetch('/api/tkb/teachers');
+    const data = await res.json();
+    if(data.success) teachers = data.teachers;
+  }
+
+  // Khi chọn đối tượng
+  filterTarget.addEventListener("change", async function() {
+    filterClass.innerHTML = '<option value="">-- Chọn --</option>';
+
+    if(this.value === 'class') {
+      gradeGroup.style.display = 'block';
+      labelClassTeacher.textContent = "Lớp";
+      await loadClassrooms();
+
+      const grade = filterGrade.value;
+      const filtered = grade ? classrooms.filter(c => c.Khoi === grade) : classrooms;
+      filtered.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c._id;
+        opt.textContent = c.name;
+        filterClass.appendChild(opt);
+      });
+
+    } else if(this.value === 'teacher') {
+      gradeGroup.style.display = 'none';
+      labelClassTeacher.textContent = "Giáo viên";
+      await loadTeachers();
+
+      teachers.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t;
+        opt.textContent = t;
+        filterClass.appendChild(opt);
+      });
+    }
+  });
+
+  // Khi chọn khối (chỉ khi target = class)
+  filterGrade.addEventListener("change", async function() {
+    if(filterTarget.value !== 'class') return;
+    await loadClassrooms();
+    filterClass.innerHTML = '<option value="">-- Chọn lớp --</option>';
+    const filtered = classrooms.filter(c => c.Khoi === this.value);
+    filtered.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c._id;
+      opt.textContent = c.name;
+      filterClass.appendChild(opt);
+    });
+  });
+
+  // Khi chọn lớp hoặc giáo viên
+  filterClass.addEventListener("change", async function() {
+    const val = this.value;
+    if(!val){ timetableContainer.style.display = 'none'; return; }
+
+    let apiUrl = '';
+    if(filterTarget.value === 'class'){
+      apiUrl = `/api/tkb/xemthoikhoabieuClass/${val}`;
+    } else if(filterTarget.value === 'teacher'){
+      apiUrl = `/api/tkb/xemthoikhoabieuTeacher/${encodeURIComponent(val)}`;
+    }
+
+    const res = await fetch(apiUrl);
+    const data = await res.json();
+    if(!data.success) return alert(data.message);
+
+    timetableBody.innerHTML = '';
+
+    const DAYS = [2,3,4,5,6]; 
+    const maxMorning = 4;
+    const maxAfternoon = 3;
+
+    const getSlot = (session, period, day) => {
+      return data.slots.find(s => s.session === session && s.period === period && s.day === day);
+    };
+
+    // Buổi sáng
+    for(let period = 1; period <= maxMorning; period++){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><strong>Sáng</strong> - Tiết ${period}</td>`;
+      DAYS.forEach(day => {
+        const td = document.createElement('td');
+        let slotText = '';
+
+        if(day === 2 && period === 1){ 
+          slotText = `<strong>Chào cờ</strong>`;
+        } else if(day === 6 && period === 4){ 
+          slotText = `<strong>SHTT</strong><br><small>GVCN</small>`;
+        } else {
+          const slot = getSlot('Sáng', period, day);
+          if(slot) slotText = `<strong>${slot.subjectName}</strong><br><small>${slot.teacher}</small>`;
+        }
+
+        td.innerHTML = slotText;
+        tr.appendChild(td);
+      });
+      timetableBody.appendChild(tr);
+    }
+
+    // Buổi chiều
+    for(let period = 1; period <= maxAfternoon; period++){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><strong>Chiều</strong> - Tiết ${period}</td>`;
+      DAYS.forEach(day => {
+        const td = document.createElement('td');
+        let slotText = '';
+
+        if(day === 6){ 
+          slotText = '';
+        } else {
+          const slot = getSlot('Chiều', period, day);
+          if(slot) slotText = `<strong>${slot.subjectName}</strong><br><small>${slot.teacher}</small>`;
+        }
+
+        td.innerHTML = slotText;
+        tr.appendChild(td);
+      });
+      timetableBody.appendChild(tr);
+    }
+
+    timetableContainer.style.display = 'block';
+  });
+});
+</script>

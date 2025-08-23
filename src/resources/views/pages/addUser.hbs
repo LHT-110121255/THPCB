@@ -1,0 +1,212 @@
+<div class="row add-user mb-4">
+    <h1 class="title-add-user text-center mb-4">Thêm người dùng</h1>
+
+    <!-- Form thêm thủ công -->
+    <div id="manualForm">
+        <form id="createUserForm" enctype="multipart/form-data" class="col-md-6 offset-md-3">
+
+            <div class="mb-3">
+                <label class="form-label">Tài khoản</label>
+                <input type="text" class="form-control" name="userName" id="userName" placeholder="Example: LamHueTrung">
+                <div id="userNameError" class="text-danger"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Quyền hạn</label>
+                <select name="role" id="role" class="form-control">
+                    <option value="">--Chọn quyền--</option>
+                    <option value="school_admin">Ban giám hiệu</option>
+                    <option value="teacher">Giáo viên</option>
+                    <option value="student">Học sinh</option>
+                    <option value="parent">Phụ huynh</option>
+                    <option value="staff">Nhân viên</option>
+                </select>
+                <div id="roleError" class="text-danger"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Họ và tên</label>
+                <input type="text" class="form-control" name="fullName" id="fullName" placeholder="Example: Lâm Huệ Trung">
+                <div id="fullNameError" class="text-danger"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Ngày sinh</label>
+                <input type="date" class="form-control" name="birthday" id="birthday">
+                <div id="birthdayError" class="text-danger"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Số điện thoại</label>
+                <input type="text" class="form-control" name="numberPhone" id="numberPhone" placeholder="Examples: 076384xxxx">
+                <div id="numberPhoneError" class="text-danger"></div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" name="email" id="email" placeholder="Examples: example@gmail.com">
+                <div id="emailError" class="text-danger"></div>
+            </div>
+
+            <!-- Địa chỉ -->
+            <div class="mb-3">
+                <label class="form-label">Tỉnh/Thành phố</label>
+                <select class="form-control" id="province">
+                    <option value="">--Chọn tỉnh/thành--</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Xã/Phường</label>
+                <select class="form-control" id="ward">
+                    <option value="">--Chọn xã/phường--</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Ấp/Khóm (nếu có)</label>
+                <input type="text" class="form-control" id="hamlet" placeholder="Nhập ấp/khóm">
+            </div>
+
+            <!-- Input ẩn để lưu địa chỉ gộp -->
+            <input type="hidden" name="address" id="address">
+
+            <div class="mb-3">
+                <label class="form-label">Ảnh đại diện</label>
+                <input type="file" class="form-control" name="avatar" id="avatar">
+                <div id="avatarError" class="text-danger"></div>
+            </div>
+
+            <!-- Thông tin giáo viên -->
+            <div id="teacherFields" style="display:none; border-top:1px solid #ccc; padding-top:15px; margin-top:20px;">
+                <h5 class="mb-3">Thông tin giáo viên</h5>
+                <div class="mb-3">
+                    <label class="form-label">Tổ chuyên môn</label>
+                    <input type="text" class="form-control" name="department" placeholder="VD: Toán - Tin">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Môn giảng dạy</label>
+                    <input type="text" class="form-control" name="subjects" placeholder="VD: Toán, Tin học">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Bằng cấp</label>
+                    <input type="text" class="form-control" name="qualification" placeholder="VD: Thạc sĩ Sư phạm Toán">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Năm bắt đầu giảng dạy</label>
+                    <input type="number" class="form-control" name="startYear" placeholder="VD: 2015">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Chức vụ</label>
+                    <input type="text" class="form-control" name="position" placeholder="VD: Tổ trưởng chuyên môn">
+                </div>
+            </div>
+            <div class="d-flex" style="float: right;">
+                <button type="submit" class="btn btn-system btn-submit">Tạo mới</button>
+                <button type="button" onclick="javascript:history.back()" class="btn btn-secondary btn-previou">Quay lại</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+    const provinceSelect = document.getElementById("province");
+    const wardSelect = document.getElementById("ward");
+    const hamletInput = document.getElementById("hamlet");
+    const addressInput = document.getElementById("address");
+    const roleSelect = document.getElementById("role");
+    const teacherFields = document.getElementById("teacherFields");
+
+    // Toggle form giáo viên
+    roleSelect.addEventListener("change", function () {
+        if (this.value === "teacher") {
+            teacherFields.style.display = "block";
+        } else {
+            teacherFields.style.display = "none";
+        }
+    });
+
+    // Lấy danh sách tỉnh và xã
+    const resProvinces = await fetch("https://provinces.open-api.vn/api/v2/p");
+    const resWards = await fetch("https://provinces.open-api.vn/api/v2/w");
+
+    const provinces = await resProvinces.json();
+    const wards = await resWards.json();
+
+    // Render dropdown tỉnh
+    provinceSelect.innerHTML = '<option value="">--Chọn tỉnh/thành--</option>';
+    provinces.forEach(p => {
+        provinceSelect.innerHTML += `<option value="${p.code}">${p.name}</option>`;
+    });
+
+    // Khi chọn tỉnh → lọc xã/phường theo province_code
+    provinceSelect.addEventListener("change", function () {
+        const selectedProvinceCode = parseInt(this.value);
+        wardSelect.innerHTML = '<option value="">--Chọn xã/phường--</option>';
+
+        if (!isNaN(selectedProvinceCode)) {
+            const filteredWards = wards.filter(w => w.province_code === selectedProvinceCode);
+            filteredWards.forEach(w => {
+                wardSelect.innerHTML += `<option value="${w.code}">${w.name}</option>`;
+            });
+        }
+        updateAddress();
+    });
+
+    function updateAddress() {
+        const wardName = wardSelect.options[wardSelect.selectedIndex]?.text || "";
+        const provinceName = provinceSelect.options[provinceSelect.selectedIndex]?.text || "";
+        const hamletName = hamletInput.value || "";
+        addressInput.value = [hamletName, wardName, provinceName].filter(Boolean).join(", ");
+    }
+
+    wardSelect.addEventListener("change", updateAddress);
+    hamletInput.addEventListener("input", updateAddress);
+
+    // Submit form
+    document.getElementById("createUserForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        updateAddress();
+
+        const formData = new FormData(this);
+
+        fetch('/api/user/create', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: "Tạo tài khoản thành công!",
+                    icon: "success",
+                    timer: 2000,
+                    showConfirmButton: false,
+                }).then(() => {
+                    window.location.href = '/users/ListAllUser';
+                });
+            } else {
+                if (data.errors) {
+                    document.getElementById("userNameError").textContent = data.errors.userName || "";
+                    document.getElementById("roleError").textContent = data.errors.role || "";
+                    document.getElementById("fullNameError").textContent = data.errors.fullName || "";
+                    document.getElementById("birthdayError").textContent = data.errors.birthday || "";
+                    document.getElementById("numberPhoneError").textContent = data.errors.numberPhone || "";
+                    document.getElementById("emailError").textContent = data.errors.email || "";
+                    document.getElementById("avatarError").textContent = data.errors.avatar || "";
+                }
+                Swal.fire('Lỗi', 'Có lỗi xảy ra, vui lòng kiểm tra lại thông tin', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Lỗi', 'Có lỗi xảy ra, vui lòng thử lại', 'error');
+        });
+    });
+});
+</script>

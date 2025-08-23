@@ -1,0 +1,60 @@
+.btn-system {
+  background: linear-gradient(90deg, #2D99AE 0%, #133F48 100%);
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  color: white; }
+
+.btn-system:hover, .btn-system:focus {
+  background: linear-gradient(90deg, #133F48 0%, #2D99AE 100%);
+  color: #fff; }
+
+.btn-previou {
+  margin-left: 10px;
+  background: #505050;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  color: white; }
+
+.btn-previou:hover, .btn-previou:focus {
+  background: #505050ce;
+  color: #fff; }
+
+.title-add-user {
+  font-size: 30px;
+  font-weight: 700;
+  color: #505050;
+  margin-bottom: 20px; }
+
+.form-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #505050;
+  margin-bottom: 5px; }
+
+.btn-darks {
+  background-color: #000;
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  border: none;
+  box-shadow: 4px 4px 1px #333; }
+
+.btn-darks:hover, .btn-darks:focus {
+  background-color: #000;
+  color: white;
+  box-shadow: 2px 2px 1px #333; }
+
+.btn-choicefile {
+  background: #0C5776;
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  border: none;
+  box-shadow: 4px 4px #001C44; }
+
+.btn-choicefile:hover, .btn-choicefile:focus {
+  background: #0C5776;
+  color: white;
+  box-shadow: 2px 2px 1px #333; }

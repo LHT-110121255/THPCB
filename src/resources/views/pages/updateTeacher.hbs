@@ -1,0 +1,148 @@
+<div class="row add-user mb-4">
+    <h1 class="title-add-user text-center mb-4">Cập nhật thông tin giáo viên</h1>
+
+    <!-- Form thêm thủ công -->
+    <div id="manualForm">
+        <form id="createTeacherForm" enctype="multipart/form-data" class="col-md-6 offset-md-3">
+            <div class="mb-3">
+                <label class="form-label">Tên giáo viên</label>
+                <input type="text" class="form-control" name="fullName" id="fullName" placeholder="Example: Lâm Huệ Trí">
+                <div class="text-danger" id="fullNameError"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" name="email" id="email" placeholder="Example: huetri1972@gmail.com">
+                <div class="text-danger" id="emailError"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Số điện thoại</label>
+                <input type="text" class="form-control" name="phone" id="phone" placeholder="Example: 09478523xxxx">
+                <div class="text-danger" id="phoneError"></div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Ngày sinh</label>
+                <input type="date" class="form-control" name="birthDay" id="birthDay">
+                <div id="birthDayError" class="text-danger"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Môn giảng dạy</label>
+                <input type="text" class="form-control" name="subjectSpecialization" id="subjectSpecialization" placeholder="Example: Toán">
+                <div class="text-danger" id="subjectSpecializationError"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Trình độ</label>
+                <input type="text" class="form-control" name="academicLevel" id="academicLevel" placeholder="Example: Đại học">
+                <div id="academicLevelError" class="text-danger"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Thời gian vào trường</label>
+                <input type="date" class="form-control" name="hireDate" id="hireDate">
+                <div id="hireDateError" class="text-danger"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Tổ</label>
+                <input type="text" class="form-control" name="department" id="department" placeholder="Example: Toán - tin">
+                <div id="departmentError" class="text-danger"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Chức vụ</label>
+                <input type="text" class="form-control" name="position" id="position" placeholder="Example: Giáo viên">
+                <div class="text-danger" id="positionError"></div>
+            </div>
+
+            <div class="d-flex" style="float: right;">
+                <button type="submit" class="btn btn-system btn-submit" id="submitBtn">Câp nhật</button>
+                <button type="button" onclick="javascript:history.back()" class="btn btn-secondary btn-previou">Quay lại</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Lấy ID người dùng từ URL (ví dụ: /updateUser/:id)
+    const teacherId = window.location.pathname.split('/').pop(); // Lấy ID từ URL
+
+    function formattedDate(dateData) {
+        const date = new Date(dateData);
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
+        const dd = String(date.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+    // Gửi yêu cầu GET để lấy thông tin người dùng
+    fetch(`/api/teacher/getById/${teacherId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.teacher) {
+                const teacher = data.teacher.profile;
+                document.getElementById("fullName").value = teacher.fullName || "Chưa cập nhật";
+                document.getElementById("email").value = teacher.email || "Chưa cập nhật";
+                document.getElementById("phone").value = teacher.phone || "Chưa cập nhật";
+                document.getElementById("birthDay").value = formattedDate(teacher.birthDate) || "Chưa cập nhật";
+                document.getElementById("subjectSpecialization").value = teacher.subjectSpecialization || "Chưa cập nhật";
+                document.getElementById("academicLevel").value = teacher.academicLevel || "Chưa cập nhật";
+                document.getElementById("hireDate").value = formattedDate(teacher.hireDate) || "Chưa cập nhật";
+                document.getElementById("department").value = teacher.department || "Chưa cập nhật";
+                document.getElementById("position").value = teacher.position || "Chưa cập nhật";
+            } else {
+                console.error('Error:', data.error);
+                Swal.fire('Lỗi', 'Không thể tải thông tin người dùng', 'error');
+            }
+            console.log('User data loaded successfully:', data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Lỗi', 'Có lỗi xảy ra khi tải dữ liệu người dùng', 'error');
+        });
+
+    // Xử lý submit form khi chỉnh sửa thông tin người dùng
+    document.getElementById("createTeacherForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Ngăn chặn gửi form theo phương thức POST
+
+        const formData = new FormData(this); // Lấy dữ liệu từ form
+
+        // Thêm ID người dùng vào formData để biết người dùng nào đang được chỉnh sửa
+        formData.append('teacherId', teacherId);
+            
+        // Gửi yêu cầu API để chỉnh sửa thông tin người dùng
+        fetch(`/api/teacher/update/${teacherId}`, {
+            method: 'PUT',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: "Chỉnh sửa thành công!",
+                    text: data.message,
+                    icon: "success",
+                    timer: 2000,
+                    confirmButtonText: "OK"
+                }).then(() => {
+                    window.location.href = '/users/ListAllTeacher'; // Chuyển đến danh sách người dùng hoặc trang khác
+                });
+            } else {
+                console.error('Error:', data.errors);
+                Object.keys(data.errors).forEach(key => {
+                    document.getElementById(`${key}Error`).innerText = data.errors[key];
+                });
+
+                Swal.fire('Lỗi', 'Có lỗi xảy ra, vui lòng kiểm tra lại thông tin', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Lỗi', 'Có lỗi xảy ra, vui lòng thử lại', 'error');
+        });
+    });
+});
+</script>

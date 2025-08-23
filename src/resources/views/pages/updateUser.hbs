@@ -1,0 +1,158 @@
+<div class="row add-user mb-4">
+    <h1 class="title-add-user text-center mb-4">Chỉnh sửa thông tin</h1>
+
+    <!-- Form chỉnh sửa người dùng -->
+    <div id="manualForm">
+        <form id="createUserForm" enctype="multipart/form-data" class="col-md-6 offset-md-3">
+            <div class="mb-3">
+                <label class="form-label">Tài khoản</label>
+                <input type="text" class="form-control" name="userName" id="userName"  placeholder="Example: LamHueTrung">
+                <div id="userNameError" class="text-danger"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Quyền hạn</label>
+                <select name="role" id="role" class="form-control">
+                        <option value="device_manager">Quản lý thiết bị</option>
+                        <option value="gift_manager">Quản lý quà tặng</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Họ và tên</label>
+                <input type="text" class="form-control" name="fullName" id="fullName"  placeholder="Example: Lâm Huệ Trung">
+                <div id="fullNameError" class="text-danger"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Ngày sinh</label>
+                <input type="date" class="form-control" name="birthday" id="birthday" >
+                <div id="birthdayError" class="text-danger"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Số điện thoại</label>
+                <input type="text" class="form-control" name="numberPhone" id="numberPhone"  placeholder="Examples: 076384xxxx">
+                <div id="numberPhoneError" class="text-danger"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" name="email" id="email" placeholder="Examples: example@gmail.com">
+                <div id="emailError" class="text-danger"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Địa chỉ</label>
+                <input type="text" class="form-control" name="address" id="address" placeholder="Examples: Trà Vinh">
+                <div id="addressError" class="text-danger"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Ảnh đại diện</label>
+                <div id="avatarPreview" class="mb-2">
+                    <img id="currentAvatar" src="" alt="Ảnh đại diện" style="max-width: 150px; max-height: 150px; display: none;">
+                </div>
+                <input type="file" class="form-control" name="avatar" id="avatar">
+                <div id="avatarError" class="text-danger"></div>
+            </div>
+
+            <div class="d-flex" style="float: right;">
+                <button type="submit" class="btn btn-system btn-submit">Lưu thay đổi</button>
+                <button type="button" onclick="javascript:history.back()" class="btn btn-secondary btn-previou">Quay lại</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Lấy ID người dùng từ URL (ví dụ: /updateUser/:id)
+    const userId = window.location.pathname.split('/').pop(); // Lấy ID từ URL
+
+    // Gửi yêu cầu GET để lấy thông tin người dùng
+    fetch(`/api/user/getById/${userId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.user) {
+                // Điền giá trị vào form với dữ liệu người dùng
+                document.getElementById("userName").value = data.user.username;
+                document.getElementById("role").value = data.user.role;
+                document.getElementById("fullName").value = data.user.profile.fullName;
+                document.getElementById("birthday").value = new Date(data.user.profile.birthDate).toISOString().split('T')[0];
+                document.getElementById("numberPhone").value = data.user.profile.phone;
+                document.getElementById("email").value = data.user.profile.email;
+                document.getElementById("address").value = data.user.profile.address;
+
+                // Hiển thị ảnh đại diện nếu có
+                if (data.user.profile.avatar) {
+                    const avatarImg = document.getElementById("currentAvatar");
+                    avatarImg.src = data.user.profile.avatar; // Giả sử avatar là URL hoặc đường dẫn hợp lệ
+                    avatarImg.style.display = 'block';
+                    const avatarInput = document.getElementById("avatar");
+                    avatarInput.setAttribute("data-default-avatar", data.user.profile.avatar); // Lưu trữ giá trị ảnh cũ
+                }  
+                
+                // Nếu có ảnh đại diện, điền vào input avatar
+                if (data.user.profile.avatar) {
+                    const avatarInput = document.getElementById("avatar");
+                    avatarInput.setAttribute("data-default-avatar", data.user.profile.avatar); // Để lưu trữ giá trị ảnh cũ
+                }
+            } else {
+                Swal.fire('Lỗi', 'Không thể tải thông tin người dùng', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Lỗi', 'Có lỗi xảy ra khi tải dữ liệu người dùng', 'error');
+        });
+
+    // Xử lý submit form khi chỉnh sửa thông tin người dùng
+    document.getElementById("createUserForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Ngăn chặn gửi form theo phương thức POST
+
+        const formData = new FormData(this); // Lấy dữ liệu từ form
+
+        // Thêm ID người dùng vào formData để biết người dùng nào đang được chỉnh sửa
+        formData.append('userId', userId);
+
+        // Gửi yêu cầu API để chỉnh sửa thông tin người dùng
+        fetch(`/api/user/updateUser/${userId}`, {
+            method: 'PUT',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: "Chỉnh sửa thành công!",
+                    text: data.message,
+                    icon: "success",
+                    timer: 2000,
+                    showConfirmButton: false,
+                }).then(() => {
+                    window.location.href = '/users/ListAllUser'; // Chuyển đến danh sách người dùng hoặc trang khác
+                });
+            } else {
+                // Hiển thị lỗi từ API
+                if (data.errors) {
+                    // Hiển thị lỗi từng trường
+                    document.getElementById("userNameError").textContent = data.errors.userName || "";
+                    document.getElementById("roleError").textContent = data.errors.role || "";
+                    document.getElementById("fullNameError").textContent = data.errors.fullName || "";
+                    document.getElementById("birthdayError").textContent = data.errors.birthday || "";
+                    document.getElementById("numberPhoneError").textContent = data.errors.numberPhone || "";
+                    document.getElementById("emailError").textContent = data.errors.email || "";
+                    document.getElementById("addressError").textContent = data.errors.address || "";
+                    document.getElementById("avatarError").textContent = data.errors.avatar || "";
+                }
+                Swal.fire('Lỗi', 'Có lỗi xảy ra, vui lòng kiểm tra lại thông tin', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Lỗi', 'Có lỗi xảy ra, vui lòng thử lại', 'error');
+        });
+    });
+});
+</script>

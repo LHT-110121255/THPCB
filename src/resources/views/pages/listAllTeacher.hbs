@@ -1,0 +1,109 @@
+<div class="card shadow mb-4" id="page-top">
+    <div class="card-header py-3">
+    </div>
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Danh sách giáo viên</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Số điện thoại</th>
+                        <th>Tổ</th>
+                        <th>Trạng thái làm việc</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each teachers}}
+                    <tr>
+                        <td>{{increment @index}}</td>
+                        <td>{{this.profile.fullName}}</td>
+                        <td>{{this.profile.email}}</td>
+                        <td>{{this.profile.phone}}</td>
+                        <td>{{this.profile.department}}</td>
+                        <td style="color:
+                            {{#ifCond this.profile.status '==' 'active'}}green
+                            {{else}}
+                                {{#ifCond this.profile.status '==' 'on_leave'}}orange
+                                {{else}}
+                                    {{#ifCond this.profile.status '==' 'inactive'}}red
+                                    {{else}}black
+                                    {{/ifCond}}
+                                {{/ifCond}}
+                            {{/ifCond}}
+                        ">
+                            {{#ifCond this.profile.status '==' 'active'}}Đang hoạt động
+                            {{else}}
+                                {{#ifCond this.profile.status '==' 'on_leave'}}Đình chỉ
+                                {{else}}
+                                    {{#ifCond this.profile.status '==' 'inactive'}}Vô hiệu hóa
+                                    {{else}}Không xác định
+                                    {{/ifCond}}
+                                {{/ifCond}}
+                            {{/ifCond}}
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <img width="30px" src="/img/dotsMenu.png" alt="">
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a class="dropdown-item" href="/users/updateTeacher/{{this._id}}"><i class="fa-regular fa-pen-to-square"></i> Chỉnh sửa</a>
+                                    <a class="dropdown-item" onclick="confirmDelete('{{this._id}}')"><i class="fa-regular fa-trash-can"></i> Xoá</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Confirm Delete user
+    function confirmDelete(idUser) {
+        const messages = {
+            delete: 'Xóa giảng viên dùng này?'
+        };
+
+        Swal.fire({
+            title: messages['delete'],
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Đồng ý',
+            cancelButtonText: 'Hủy',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/api/teacher/delete/${idUser}`, { method: 'DELETE' })
+                    .then(response => response.ok ? response.json() : Promise.reject('Lỗi khi thực hiện hành động'))
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: `Giảng viên đã được xóa !`,
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => { if (data.success) location.reload(); });
+                        } else {
+                            Swal.fire({
+                                title: 'Không thể thực hiện hành động!',
+                                text: data.message || 'Đã xảy ra lỗi không xác định.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({ title: 'Có lỗi xảy ra!', icon: 'error', confirmButtonText: 'OK' })
+                        console.log(error);
+                    });
+            }
+        });
+    }
+</script>

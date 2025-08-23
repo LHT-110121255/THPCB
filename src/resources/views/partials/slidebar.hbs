@@ -1,0 +1,318 @@
+<ul class="navbar-nav bg-gradient-dark sidebar sidebar-dark accordion" id="accordionSidebar">
+
+    <!-- Sidebar - Brand -->
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/home">
+        <div class="sidebar-brand-icon rotate-n-15">
+            <img style="width: 60%;" src="/img/logo-short.png" alt="">
+        </div>
+        <div class="sidebar-brand-text mr-8">THPCB</div>
+    </a>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider my-0">
+
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item active">
+        <a class="nav-link" href="/home">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Dashboard</span></a>
+    </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        Quản lý
+    </div>
+
+    <!-- Nav Item - Pages Collapse Menu -->
+    <li class="nav-item" id="userManagement">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUser"
+            aria-expanded="true" aria-controls="collapseTwo">
+            <i class="fas fa-fw fa-user"></i>
+            <span>Người dùng</span>
+        </a>
+        <div id="collapseUser" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Chức năng:</h6>
+                <a class="collapse-item" href="/users/addUser">Thêm mới</a>
+                <a class="collapse-item" href="/users/listAllUser">Danh sách tài khoản</a>
+                <a class="collapse-item" href="/users/ListAllTeacher">Quản lý nhân sự</a>
+            </div>
+        </div>
+    </li>
+    <hr class="sidebar-divider">
+    <div class="sidebar-heading">
+        THỜI KHOÁ BIỂU
+    </div>
+    <li class="nav-item">
+        <a class="nav-link" href="/thoikhoabieu/xem">
+            <i class="fa-solid fa-calendar-days"></i>
+            <span>Xem TKB</span></a>
+    </li>
+    <li class="nav-item" id="TaoThoiKhoaBieu">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTKBPhanCong"
+            aria-expanded="true" aria-controls="collapseTKBPhanCong">
+            <i class="fa-solid fa-gear"></i>
+            <span>Phân công</span>
+        </a>
+        <div id="collapseTKBPhanCong" class="collapse" aria-labelledby="collapseTKBPhanCong" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Chức năng:</h6>
+                <a class="collapse-item" href="/thoikhoabieu/PhanCong/themMonHoc">Thiết lập môn học</a>
+                <a class="collapse-item" href="/thoikhoabieu/PhanCong/caiDatLopHoc">Thiết lập lớp học</a>
+                <a class="collapse-item" onclick="return PhanCongTuDong()">Phân công tự động</a>
+                <a class="collapse-item" href="/thoikhoabieu/PhanCong/thuCong">Phân công thủ công</a>
+                <a class="collapse-item" href="/thoikhoabieu/PhanCong/thuCong">Làm mới / Reset TKB</a>
+            </div>
+        </div>
+    </li>
+    <hr class="sidebar-divider">
+    <div class="sidebar-heading">
+        BÁO CÁO THỐNG KÊ
+    </div>
+    <li class="nav-item" id="TaoThongKe">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBCTK"
+            aria-expanded="true" aria-controls="collapseBCTK">
+            <i class="fa-solid fa-puzzle-piece"></i>
+            <span>Tạo thống kê</span>
+        </a>
+        <div id="collapseBCTK" class="collapse" aria-labelledby="collapseBCTK" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Chức năng:</h6>
+                <a class="collapse-item" href="/thongke/createInfo">Tạo module</a>
+                <a class="collapse-item" href="/thongke/homeInfo">Danh sách</a>
+            </div>
+        </div>
+    </li>
+    <li class="nav-item" id="DanhSachThongKe">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseDSBCTK"
+            aria-expanded="true" aria-controls="collapseDSBCTK">
+            <i class="fa-solid fa-list"></i>
+            <span>Danh sách</span>
+        </a>
+        <div id="collapseDSBCTK" class="collapse" aria-labelledby="collapseDSBCTK" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Chức năng:</h6>
+            </div>
+        </div>
+    </li>
+    <hr class="sidebar-divider">
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        Quản lý trang
+    </div>
+    <li class="nav-item" id="DanhSachBaiViet">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBV"
+            aria-expanded="true" aria-controls="collapseBV">
+            <i class="fa-solid fa-newspaper"></i>
+            <span>Bài viết</span>
+        </a>
+        <div id="collapseBV" class="collapse" aria-labelledby="collapseBV" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="/users/addUser">Thống kê sinh viên</a>
+            </div>
+        </div>
+    </li>
+    <li class="nav-item" id="borrowReturnStats">
+        <a class="nav-link" href="/statistic/borrowReturn">
+        <i class="fas fa-fw fa-cogs"></i>
+            <span>Cài đặt</span></a>
+    </li>
+    <hr class="sidebar-divider">
+
+    <li class="nav-item">
+        <a class="nav-link" href="/users/profile/me">
+            <i class="fa-solid fa-address-card"></i>
+            <span>Thông tin cá nhân</span></a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" onclick="handleLogout()">
+            <i class="fas fa-fw fa-cogs"></i>
+            <span>Đăng xuất</span>
+        </a>
+    </li>
+
+    <!-- Sidebar Toggler (Sidebar) -->
+    <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+
+</ul>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Gửi yêu cầu để lấy thông tin người dùng hiện tại
+    fetch('/api/user/me', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionStorage.getItem('token') || ''}` // Lấy token từ sessionStorage
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.user) {
+            const role = data.user.role;
+
+            // Phân quyền hiển thị sidebar
+            if (role === 'admin') {
+                // Admin thấy tất cả
+                // Không cần ẩn gì cả
+            } else if (role === 'device_manager') {
+                // Chỉ thấy mục Thiết bị, Thống kê thiết bị, Thống kê mượn trả, Thông tin cá nhân, Đăng xuất
+                document.getElementById('userManagement').style.display = 'none';
+                document.getElementById('giftManagement').style.display = 'none';
+                document.getElementById('rewardStats').style.display = 'none';
+            } else if (role === 'gift_manager') {
+                // Chỉ thấy mục Quà tặng, Thống kê quà tặng, Thông tin cá nhân, Đăng xuất
+                document.getElementById('userManagement').style.display = 'none';
+                document.getElementById('deviceManagement').style.display = 'none';
+                document.getElementById('borrowReturnStats').style.display = 'none';
+                document.getElementById('deviceStats').style.display = 'none';
+            }
+        } else {
+            Swal.fire('Lỗi', 'Không thể lấy thông tin người dùng', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching user role:', error);
+        Swal.fire('Lỗi', 'Có lỗi xảy ra khi lấy thông tin người dùng', 'error');
+    });
+
+    //Lấy thông tin module thống kê
+    const collapseDSBCTK = document.getElementById('collapseDSBCTK');
+    const collapseInner = collapseDSBCTK.querySelector('.collapse-inner');
+
+    fetch('/api/thong-ke/info/get-all', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (collapseInner) {
+            data.modules.forEach(module => {
+                if (module.status !== 'active') return; 
+                const linkItem = document.createElement('a');
+                linkItem.className = 'collapse-item';
+                linkItem.href = `/thong-ke/info/${module._id}`;
+                linkItem.textContent = module.name;
+                collapseInner.appendChild(linkItem);
+            });
+        } else {
+            console.error('Không có module thống kê nào được tìm thấy.');
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching modules:', error);
+        Swal.fire('Lỗi', 'Không thể lấy danh sách module thống kê', 'error');
+    });
+});
+function handleLogout() {
+    Swal.fire({
+        title: 'Bạn muốn đăng xuất?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Đồng ý',
+        cancelButtonText: 'Hủy',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/api/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    sessionStorage.removeItem('token'); // Xóa token
+                    Swal.fire({
+                        title: 'Đăng xuất thành công!',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false,
+                    }).then(() => {
+                        window.location.href = '/';
+                    });
+                } else {
+                    Swal.fire('Lỗi', 'Đăng xuất thất bại', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Lỗi', 'Đăng xuất thất bại', 'error');
+            });
+        }
+    });
+}
+
+function DangPhatTrien() {
+    Swal.fire({
+        title: 'Tính năng đang phát triển!',
+        text: 'Huệ Trung sẽ sớm cập nhật tính năng này.',
+        icon: 'info',
+        confirmButtonText: 'Đóng'
+    });
+    return false;
+}
+  async function PhanCongTuDong() {
+  try {
+    // Hiển thị swal loading
+    Swal.fire({
+      title: 'Đang phân công tự động...',
+      text: 'Hệ thống đang xử lý, vui lòng chờ',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // 1️⃣ Gọi API seed TeacherQuota bằng GET
+    const seedRes = await fetch('/api/tkb/addteacherQuota'); // GET
+    const seedData = await seedRes.json();
+    if (!seedData.success) throw new Error(seedData.message || 'Seed TeacherQuota thất bại');
+
+    // 2️⃣ Gọi API phân công tự động
+    const assignRes = await fetch('/api/tkb/auto-assign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ week: 1 }) // nếu cần có week
+    });
+    const assignData = await assignRes.json();
+
+    Swal.close(); // tắt loading
+
+    if (assignData.success) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Thành công!',
+        text: 'Thời khóa biểu đã được phân công tự động.',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        // reload lại trang hoặc gọi hàm render lại TKB
+        location.reload();
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi!',
+        text: assignData.message || 'Phân công thất bại',
+      });
+    }
+
+  } catch (err) {
+    Swal.close();
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi!',
+      text: err.message || 'Không thể kết nối tới máy chủ.',
+    });
+  }
+}
+</script> 

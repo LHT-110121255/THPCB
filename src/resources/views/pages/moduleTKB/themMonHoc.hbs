@@ -1,0 +1,209 @@
+<div class="row add-user mb-4">
+    <h1 class="title-add-user text-center mb-4">Thêm môn học</h1>
+    <div id="manualForm">
+        <form id="createSubjectForm" enctype="multipart/form-data" class="col-md-6 offset-md-3">
+            <div class="mb-3">
+                <label class="form-label">Tên môn học</label>
+                <input type="text" class="form-control" name="name" id="name" placeholder="Example: Toán">
+                <div class="text-danger" id="nameError"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Chuyên môn</label>
+                <select name="ChuyenMon" id="ChuyenMon" class="form-control" onchange="toggleTeacherInput()">
+                  <option value="0">Không</option>
+                  <option value="1">Có</option>
+                </select>
+                <div id="ChuyenMonError" class="text-danger"></div>
+            </div>
+
+            <!-- Input tên giáo viên chỉ hiện khi chọn chuyên môn -->
+            <div class="mb-3" id="teacherNameGroup" style="display:none;">
+                <label class="form-label">Tên giáo viên</label>
+                <input type="text" class="form-control" name="teacherName" id="teacherName" placeholder="Ví dụ: Cô Lan">
+                <div id="teacherNameError" class="text-danger"></div>
+            </div>
+
+            <div class="d-flex" style="float: right;">
+                <button type="submit" class="btn btn-system btn-submit" id="submitBtn">Tạo mới</button>
+                <button type="button" onclick="javascript:history.back()" class="btn btn-secondary btn-previou">Quay lại</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <h1 class="title-add-user text-center mb-4">Danh sách môn học</h1>
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tên môn học</th>
+                        <th>Chuyên môn</th>
+                        <th>Giáo viên</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each subjects}}
+                    <tr>
+                        <td>{{increment @index}}</td>
+                        <td>{{this.name}}</td>
+                        <td style="color: {{#if this.ChuyenMon}} red {{else}} green {{/if}}">
+                            {{#if this.ChuyenMon}} Có {{else}} Không {{/if}}
+                        </td>
+                        <td>
+                            {{#if this.teacher}}
+                                {{this.teacher}}
+                            {{else}}
+                                <span class="text-muted">Chưa có giáo viên</span>
+                            {{/if}}
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <img width="30px" src="/img/dotsMenu.png" alt="">
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a class="dropdown-item" href="javascript:void(0)" 
+                                       onclick="editSubject('{{this._id}}', '{{this.name}}', '{{this.ChuyenMon}}', '{{this.teacherName}}')">
+                                        <i class="fa-regular fa-pen-to-square"></i> Chỉnh sửa
+                                    </a>
+                                    <a class="dropdown-item" onclick="confirmDelete('{{this._id}}')">
+                                        <i class="fa-regular fa-trash-can"></i> Xoá
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+            <button type="button" onclick="javascript:history.back()" class="btn btn-secondary btn-previou">Back</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentEditId = null; // Lưu ID môn học đang chỉnh sửa
+
+    // Toggle input giáo viên
+    function toggleTeacherInput() {
+        const chuyenMon = document.getElementById("ChuyenMon").value;
+        const teacherGroup = document.getElementById("teacherNameGroup");
+        teacherGroup.style.display = chuyenMon === "1" ? "block" : "none";
+    }
+
+    // Hàm xoá
+    async function confirmDelete(id) {
+        Swal.fire({
+            title: "Xoá môn học",
+            text: "Bạn có chắc chắn muốn xoá môn học này?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Xoá",
+            cancelButtonText: "Huỷ"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const response = await fetch(`/api/tkb/info/delete/${id}`, {
+                    method: "DELETE"
+                });
+
+                const data = await response.json();
+
+                if (response.status >= 200 && response.status <= 300 && data.success) {
+                    Swal.fire({
+                        title: "Thành công!",
+                        text: data.message || "Môn học đã được xoá!",
+                        icon: "success",
+                        confirmButtonText: "OK"
+                    }).then(() => {
+                        location.reload(); // reload lại danh sách
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Lỗi!",
+                        text: data.message || "Có lỗi xảy ra khi xoá môn học.",
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    });
+                }
+            }
+        });
+    }
+
+    // Hàm click "Chỉnh sửa"
+    function editSubject(id, name, ChuyenMon, teacherName) {
+        currentEditId = id;
+
+        // Đổ dữ liệu vào form
+        document.getElementById("name").value = name;
+        document.getElementById("ChuyenMon").value = ChuyenMon === "true" ? "1" : "0";
+        document.getElementById("teacherName").value = teacherName || "";
+
+        toggleTeacherInput(); // hiển thị/ẩn input
+
+        // Đổi text nút
+        document.getElementById("submitBtn").innerText = "Cập nhật";
+    }
+
+    // Xử lý submit form (Thêm mới / Cập nhật)
+    document.getElementById("createSubjectForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+
+        let url = "/api/tkb/info/create";
+        let method = "POST";
+
+        if (currentEditId) {
+            url = `/api/tkb/info/update/${currentEditId}`;
+            method = "PUT";
+        }
+
+        const response = await fetch(url, {
+            method: method,
+            body: formData
+        });
+
+        const data = await response.json();
+
+        // Reset error
+        document.querySelectorAll(".text-danger").forEach(el => el.innerText = "");
+
+        if (response.status === 400 && data.errors) {
+            Object.keys(data.errors).forEach(key => {
+                const errorEl = document.getElementById(`${key}Error`);
+                if (errorEl) {
+                    errorEl.innerText = data.errors[key];
+                } else {
+                    Swal.fire({
+                        title: "Lỗi!",
+                        text: data.errors[key],
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    });
+                }
+            });
+            return;
+        }
+
+        if (data.success) {
+            Swal.fire({
+                title: "Thành công!",
+                text: data.message || (currentEditId ? "Môn học đã được cập nhật!" : "Môn học đã được tạo mới!"),
+                icon: "success",
+                confirmButtonText: "OK"
+            }).then(() => {
+                location.reload(); // reload lại danh sách
+            });
+        } else {
+            Swal.fire({
+                title: "Lỗi!",
+                text: data.message || "Có lỗi xảy ra.",
+                icon: "error",
+                confirmButtonText: "OK"
+            });
+        }
+    });
+</script>
