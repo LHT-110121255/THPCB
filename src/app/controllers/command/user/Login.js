@@ -126,7 +126,7 @@ class LoginAdmin {
             }
 
             // Kiểm tra vai trò
-            if (!['system_admin', 'device_manager', 'gift_manager'].includes(admin.role)) {
+            if (!['system_admin', 'school_admin', 'teacher'].includes(admin.role)) {
                 return res.status(403).json({
                     success: false,
                     errors: {

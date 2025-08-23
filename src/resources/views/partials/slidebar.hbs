@@ -115,7 +115,7 @@
             </div>
         </div>
     </li>
-    <li class="nav-item" id="borrowReturnStats">
+    <li class="nav-item" id="Setting">
         <a class="nav-link" href="/statistic/borrowReturn">
         <i class="fas fa-fw fa-cogs"></i>
             <span>Cài đặt</span></a>
@@ -143,6 +143,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    const role = 'admin';
     // Gửi yêu cầu để lấy thông tin người dùng hiện tại
     fetch('/api/user/me', {
         method: 'GET',
@@ -155,23 +156,32 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(response => response.json())
     .then(data => {
         if (data.success && data.user) {
-            const role = data.user.role;
+            role = data.user.role;
 
             // Phân quyền hiển thị sidebar
             if (role === 'admin') {
                 // Admin thấy tất cả
                 // Không cần ẩn gì cả
-            } else if (role === 'device_manager') {
-                // Chỉ thấy mục Thiết bị, Thống kê thiết bị, Thống kê mượn trả, Thông tin cá nhân, Đăng xuất
+            } 
+            else if (role === 'school_admin') {
                 document.getElementById('userManagement').style.display = 'none';
-                document.getElementById('giftManagement').style.display = 'none';
-                document.getElementById('rewardStats').style.display = 'none';
-            } else if (role === 'gift_manager') {
-                // Chỉ thấy mục Quà tặng, Thống kê quà tặng, Thông tin cá nhân, Đăng xuất
+                document.getElementById('TaoThongKe').style.display = 'none';
+                document.getElementById('DanhSachThongKe').style.display = 'none';
+                document.getElementById('DanhSachBaiViet').style.display = 'none';
+                document.getElementById('Setting').style.display = 'none';
+                
+            } else {
                 document.getElementById('userManagement').style.display = 'none';
-                document.getElementById('deviceManagement').style.display = 'none';
-                document.getElementById('borrowReturnStats').style.display = 'none';
-                document.getElementById('deviceStats').style.display = 'none';
+                document.getElementById('TaoThongKe').style.display = 'none';
+                document.getElementById('DanhSachThongKe').style.display = 'none';
+                document.getElementById('DanhSachBaiViet').style.display = 'none';
+                document.getElementById('Setting').style.display = 'none';
+                document.getElementById('TaoThoiKhoaBieu').style.display = 'none';
+                document.getElementById('collapseTKBPhanCong').style.display = 'none';
+                document.getElementById('collapseBCTK').style.display = 'none';
+                document.getElementById('collapseDSBCTK').style.display = 'none';
+                document.getElementById('TaoThongKe').style.display = 'none';
+                    
             }
         } else {
             Swal.fire('Lỗi', 'Không thể lấy thông tin người dùng', 'error');
@@ -183,34 +193,36 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     //Lấy thông tin module thống kê
-    const collapseDSBCTK = document.getElementById('collapseDSBCTK');
-    const collapseInner = collapseDSBCTK.querySelector('.collapse-inner');
+    if( role === 'admin') {
+        const collapseDSBCTK = document.getElementById('collapseDSBCTK');
+        const collapseInner = collapseDSBCTK.querySelector('.collapse-inner');
 
-    fetch('/api/thong-ke/info/get-all', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (collapseInner) {
-            data.modules.forEach(module => {
-                if (module.status !== 'active') return; 
-                const linkItem = document.createElement('a');
-                linkItem.className = 'collapse-item';
-                linkItem.href = `/thong-ke/info/${module._id}`;
-                linkItem.textContent = module.name;
-                collapseInner.appendChild(linkItem);
-            });
-        } else {
-            console.error('Không có module thống kê nào được tìm thấy.');
-        }
-    })
-    .catch(error => {
-        console.error('Error fetching modules:', error);
-        Swal.fire('Lỗi', 'Không thể lấy danh sách module thống kê', 'error');
-    });
+        fetch('/api/thong-ke/info/get-all', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (collapseInner) {
+                data.modules.forEach(module => {
+                    if (module.status !== 'active') return; 
+                    const linkItem = document.createElement('a');
+                    linkItem.className = 'collapse-item';
+                    linkItem.href = `/thong-ke/info/${module._id}`;
+                    linkItem.textContent = module.name;
+                    collapseInner.appendChild(linkItem);
+                });
+            } else {
+                console.error('Không có module thống kê nào được tìm thấy.');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching modules:', error);
+            Swal.fire('Lỗi', 'Không thể lấy danh sách module thống kê', 'error');
+        });
+    }
 });
 function handleLogout() {
     Swal.fire({
