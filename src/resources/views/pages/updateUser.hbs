@@ -13,9 +13,14 @@
             <div class="mb-3">
                 <label class="form-label">Quyền hạn</label>
                 <select name="role" id="role" class="form-control">
-                        <option value="device_manager">Quản lý thiết bị</option>
-                        <option value="gift_manager">Quản lý quà tặng</option>
+                    <option value="">--Chọn quyền--</option>
+                    <option value="school_admin">Ban giám hiệu</option>
+                    <option value="teacher">Giáo viên</option>
+                    <option value="student">Học sinh</option>
+                    <option value="parent">Phụ huynh</option>
+                    <option value="staff">Nhân viên</option>
                 </select>
+                <div id="roleError" class="text-danger"></div>
             </div>
 
             <div class="mb-3">

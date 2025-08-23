@@ -64,7 +64,7 @@
                 <a class="collapse-item" href="/thoikhoabieu/PhanCong/caiDatLopHoc">Thiết lập lớp học</a>
                 <a class="collapse-item" onclick="return PhanCongTuDong()">Phân công tự động</a>
                 <a class="collapse-item" href="/thoikhoabieu/PhanCong/thuCong">Phân công thủ công</a>
-                <a class="collapse-item" href="/thoikhoabieu/PhanCong/thuCong">Làm mới / Reset TKB</a>
+                <a class="collapse-item" onclick="return DangPhatTrien()">Làm mới / Reset TKB</a>
             </div>
         </div>
     </li>
@@ -143,7 +143,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const role = 'admin';
+    let role = 'system_admin';
     // Gửi yêu cầu để lấy thông tin người dùng hiện tại
     fetch('/api/user/me', {
         method: 'GET',
@@ -159,7 +159,7 @@ document.addEventListener("DOMContentLoaded", function () {
             role = data.user.role;
 
             // Phân quyền hiển thị sidebar
-            if (role === 'admin') {
+            if (role === 'system_admin') {
                 // Admin thấy tất cả
                 // Không cần ẩn gì cả
             } 
@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     //Lấy thông tin module thống kê
-    if( role === 'admin') {
+    if( role === 'system_admin') {
         const collapseDSBCTK = document.getElementById('collapseDSBCTK');
         const collapseInner = collapseDSBCTK.querySelector('.collapse-inner');
 
