@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     //Lấy thông tin module thống kê
-    if( role === 'system_admin') {
+    if( role !== 'school_admin' && role !== 'teacher' && role !== 'student') {
         const collapseDSBCTK = document.getElementById('collapseDSBCTK');
         const collapseInner = collapseDSBCTK.querySelector('.collapse-inner');
 
