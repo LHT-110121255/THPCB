@@ -310,7 +310,14 @@ function DangPhatTrien() {
         // reload lại trang hoặc gọi hàm render lại TKB
         location.reload();
       });
-    } else {
+    } else if (assignData.stats.slotsCreated == 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Cảnh báo!',
+        text: assignData.message || 'Chưa có dữ liệu để phân công.',
+      });
+    }
+    else {
       Swal.fire({
         icon: 'error',
         title: 'Lỗi!',
