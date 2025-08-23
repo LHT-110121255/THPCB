@@ -1,6 +1,6 @@
-# 🛠️ Hệ thống Quản lý Thiết bị và Quà tặng Trung tâm Victory
+# 🛠️ Hệ thống Quản lý THPCB
 
-**Dự án này là một hệ thống web giúp tự động hóa và tối ưu hóa việc quản lý thiết bị dạy học và quà tặng tại Trung tâm Ngoại ngữ - Tin học Victory.**
+**Dự án này là một hệ thống web giúp tự động hóa và tối ưu hóa việc quản lý trường THPCB**
 
 ## 🚀 Tính năng
 
