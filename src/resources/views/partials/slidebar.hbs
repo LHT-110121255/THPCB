@@ -301,7 +301,7 @@ function DangPhatTrien() {
     const assignData = await assignRes.json();
 
     Swal.close(); // tắt loading
-else if (assignData.stats.slotsCreated == 0) {
+    if (assignData.stats.slotsCreated == 0) {
       Swal.fire({
         icon: 'warning',
         title: 'Cảnh báo!',
