@@ -154,8 +154,45 @@ try {
       res.status(500).json({ success: false, message: 'Lỗi khi lấy danh sách giáo viên', error: err.message });
 }
 };
-    
+   
+const getSubClassRom = async (req, res) => {
+  try {
+    // Lấy danh sách lớp và populate thông tin subject
+    const subClassRom = await Classrom.find({})
+      .select('name Khoi GVCN subjects')
+      .populate({
+        path: 'subjects.subject',
+        select: 'name teacher SoTiet ChuyenMon'
+      })
+      .lean(); // dùng lean để trả về plain object
+
+    // Chỉ giữ thông tin cần thiết cho frontend
+    const classrooms = subClassRom.map(classroom => {
+      classroom.subjects = classroom.subjects.map(subj => ({
+        name: subj.subject.name,
+        teacher: subj.teacher || subj.subject.teacher,
+        SoTiet: subj.SoTiet,
+        ChuyenMon: subj.subject.ChuyenMon
+      }));
+      return classroom;
+    });
+
+    res.status(200).json({
+      success: true,
+      classrooms
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Lỗi khi lấy danh sách lớp phụ', 
+      error: err.message 
+    });
+  }
+};
+
 module.exports = {
+      getSubClassRom,
       getTeachers,
       getClassrooms,
       getTimetableByClass,

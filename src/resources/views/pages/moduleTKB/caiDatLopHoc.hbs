@@ -1,5 +1,9 @@
-<div class="row add-class mb-4">
+<div class="container mt-4">
     <h1 class="title-add-class text-center mb-4">Tạo lớp học mới</h1>
+
+    <div class="text-end mb-3">
+        <button class="btn btn-info" id="openModalBtn">Xem danh sách lớp</button>
+    </div>
 
     <div id="manualForm">
         <form id="createClassForm" enctype="multipart/form-data" class="col-md-10 offset-md-1">
@@ -50,18 +54,10 @@
                             </td>
                             <td class="teacher-cell">
                                 {{#if this.ChuyenMon}}
-                                    {{#if (eq this.name "Tiếng Việt")}}
-                                        <span class="text-primary fw-bold teacher-text gvcn">Chưa có giáo viên</span>
-                                    {{else if (eq this.name "Toán")}}
-                                        <span class="text-primary fw-bold teacher-text gvcn">Chưa có giáo viên</span>
-                                    {{else if (eq this.name "SHTT")}}
-                                        <span class="text-primary fw-bold teacher-text gvcn">Chưa có giáo viên</span>
+                                    {{#if this.teacher}}
+                                        <span class="teacher-text">{{this.teacher}}</span>
                                     {{else}}
-                                        {{#if this.teacher}}
-                                            <span class="teacher-text">{{this.teacher}}</span>
-                                        {{else}}
-                                            <span class="text-muted">Chưa có giáo viên</span>
-                                        {{/if}}
+                                        <span class="text-muted">Chưa có giáo viên</span>
                                     {{/if}}
                                 {{else}}
                                     <span class="text-muted small">Môn không yêu cầu chuyên môn</span>
@@ -73,7 +69,6 @@
                 </table>
             </div>
 
-            <!-- Submit -->
             <div class="text-center">
                 <button type="submit" class="btn btn-system btn-submit" id="submitBtn">Lưu</button>
             </div>
@@ -81,9 +76,163 @@
     </div>
 </div>
 
+<style>
+    /* Canh giữa modal scrollable */
+.modal-dialog-scrollable {
+  display: flex;
+  align-items: center; /* canh giữa theo chiều dọc */
+  min-height: 100vh; /* chiếm đủ chiều cao màn hình */
+}
+
+.modal-content {
+  max-height: 90vh; /* tránh quá cao, scroll bên trong */
+  overflow-y: auto;
+}
+
+</style>
+<!-- Modal -->
+<div class="modal fade" id="classModal" tabindex="-1" aria-hidden="true" style="margin-left: 10%;">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Danh sách lớp học</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+            <label>Lọc theo lớp:</label>
+            <select id="filterClass" class="form-select w-auto d-inline-block">
+                <option value="">-- Tất cả --</option>
+            </select>
+        </div>
+        <table class="table table-bordered table-striped" id="classListTable">
+            <thead>
+                <tr>
+                    <th>Lớp</th>
+                    <th>Khối</th>
+                    <th>GVCN</th>
+                    <th>Môn học</th>
+                    <th>Giáo viên</th>
+                    <th>Số tiết</th>
+                    <th>Chuyên môn</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="classListBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const table = $("#dataTable").DataTable();
+    let classroomsData = [];
+
+    const loadClassrooms = async () => {
+        try {
+            const res = await fetch("/api/tkb/getsub-classroom");
+            const data = await res.json();
+            if(data.success) {
+                classroomsData = data.classrooms;
+                populateFilter();
+                populateModal();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const populateFilter = () => {
+        const filter = document.getElementById("filterClass");
+        filter.innerHTML = '<option value="">-- Tất cả --</option>';
+        classroomsData.forEach(c => {
+            const opt = document.createElement("option");
+            opt.value = c._id;
+            opt.textContent = c.name;
+            filter.appendChild(opt);
+        });
+    };
+
+    const populateModal = () => {
+    const tbody = document.getElementById("classListBody");
+    tbody.innerHTML = "";
+
+    classroomsData.forEach(c => {
+        const tr = document.createElement("tr");
+
+        // Gom tất cả môn học thành chuỗi HTML
+        const subjectsHTML = c.subjects.map(s => s.name).join("<br>");
+        const teachersHTML = c.subjects.map(s => s.teacher || "Chưa có giáo viên").join("<br>");
+        const periodsHTML = c.subjects.map(s => s.SoTiet).join("<br>");
+        const specializeHTML = c.subjects.map(s => s.ChuyenMon ? "✔️" : "").join("<br>");
+
+        tr.innerHTML = `
+            <td>${c.name}</td>
+            <td>${c.Khoi}</td>
+            <td>${c.GVCN}</td>
+            <td>${subjectsHTML}</td>
+            <td>${teachersHTML}</td>
+            <td>${periodsHTML}</td>
+            <td>${specializeHTML}</td>
+            <td>
+                <button class="btn btn-sm btn-warning editBtn">Sửa</button>
+                <button class="btn btn-sm btn-danger deleteBtn">Xoá</button>
+            </td>
+        `;
+
+        // Sửa lớp
+        tr.querySelector(".editBtn").addEventListener("click", () => {
+            Swal.fire({
+                icon: 'info',
+                title: 'Chưa có tính năng',
+                text: 'Tính năng sửa lớp học chưa được phát triển 😅',
+                confirmButtonText: 'Ok'
+            });
+        });
+
+        // Xoá nguyên lớp
+        tr.querySelector(".deleteBtn").addEventListener("click", () => {
+            Swal.fire({
+                title: "Xác nhận xoá lớp",
+                text: `Bạn có chắc muốn xoá lớp "${c.name}" và tất cả môn học trong lớp này không?`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Có, xoá lớp",
+                cancelButtonText: "Hủy"
+            }).then(async (result) => {
+                if(result.isConfirmed){
+                    try {
+                        const res = await fetch(`/api/tkb/classroom/delete/${c._id}`, {
+                            method: "DELETE"
+                        });
+                        const data = await res.json();
+                        if(data.success){
+                            Swal.fire("Thành công", `Đã xoá lớp "${c.name}"!`, "success");
+                            loadClassrooms();
+                        } else {
+                            Swal.fire("Lỗi", data.message || "Xoá lớp thất bại", "error");
+                        }
+                    } catch(err){
+                        console.error(err);
+                        Swal.fire("Lỗi", "Không thể kết nối server", "error");
+                    }
+                }
+            });
+        });
+
+        tbody.appendChild(tr);
+    });
+};
+    document.getElementById("openModalBtn").addEventListener("click", () => {
+        populateModal();
+        new bootstrap.Modal(document.getElementById("classModal")).show();
+    });
+
+    document.getElementById("filterClass").addEventListener("change", function() {
+        populateModal(this.value);
+    });
 
     // Khi nhập số tiết thì tự tick checkbox
     $("#dataTable").on("input", ".period-input", function () {
@@ -97,12 +246,12 @@ document.addEventListener("DOMContentLoaded", function () {
         $(".teacher-cell").each(function () {
             const subjectName = $(this).closest("tr").data("name");
             if (["Tiếng Việt", "Toán", "SHTT"].includes(subjectName)) {
-                $(this).find(".gvcn").text(gvcn || "Chưa có giáo viên");
+                $(this).find(".teacher-text").text(gvcn || "Chưa có giáo viên");
             }
         });
     }).trigger("change");
 
-    // Xử lý submit
+    // Xử lý submit (tạo hoặc cập nhật)
     document.getElementById("createClassForm").addEventListener("submit", async function (e) {
         e.preventDefault();
 
@@ -158,10 +307,14 @@ document.addEventListener("DOMContentLoaded", function () {
             subjects
         };
 
-        console.log("Form Data gửi đi:", formData);
-
         try {
-            const res = await fetch("/api/tkb/caiDatLopHoc/create", {
+            let apiUrl = "/api/tkb/caiDatLopHoc/create";
+            if(this.dataset.editId){
+                apiUrl = "/api/tkb/classrom/update";
+                formData._id = this.dataset.editId;
+            }
+
+            const res = await fetch(apiUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData)
@@ -169,24 +322,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const data = await res.json();
             if (data.success) {
-                Swal.fire({
-                    title: "Thành công!",
-                    text: data.message || "Lớp học đã được tạo mới!",
-                    icon: "success",
-                    confirmButtonText: "OK"
-                }).then(() => location.reload());
+                Swal.fire("Thành công", data.message || "Lớp học đã được lưu!", "success")
+                    .then(() => location.reload());
             } else {
-                Swal.fire({
-                    title: "Lỗi!",
-                    text: data.message || "Có lỗi xảy ra.",
-                    icon: "error",
-                    confirmButtonText: "OK"
-                });
+                Swal.fire("Lỗi!", data.message || "Có lỗi xảy ra.", "error");
             }
         } catch (err) {
             console.error("Fetch error:", err);
             Swal.fire("Lỗi!", "Không thể gửi dữ liệu đến server", "error");
         }
     });
+
+    loadClassrooms();
 });
 </script>
