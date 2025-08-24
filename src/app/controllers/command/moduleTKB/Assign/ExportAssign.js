@@ -140,9 +140,19 @@ const ExportAssign = {
       const lopStr = [...new Set(classesOfTeacher.map(c => c.name || ""))].join(", ");
 
       // Ghi thông tin chung vào file Excel
-      worksheet.getCell(`B${startRow}`).value = `Khối: ${khoiStr}`;
-      worksheet.getCell(`B${startRow + 1}`).value = `Lớp: ${lopStr}`;
-      worksheet.getCell(`B${startRow + 2}`).value = `Giáo viên: ${teacherName}`;
+      worksheet.getCell(`B${startRow}`).value = `${khoiStr}`;
+      worksheet.getCell(`B${startRow + 1}`).value = `${lopStr}`;
+      worksheet.getCell(`B${startRow + 2}`).value = `${teacherName}`;
+      // Tính tổng số tiết
+      const totalPeriods = slots.length;
+      worksheet.getCell(`D${startRow + 2}`).value = `TỔNG SỐ TIẾT: ${totalPeriods}`;
+      worksheet.getCell(`D${startRow + 2}`).font = { bold: true, color: { argb: 'FFFF0000' } }; 
+      ["C", "D", "E", "F", "G"].forEach(col => {
+        worksheet.getColumn(col).width = 18;
+      });
+      ["K", "L", "M", "N", "O"].forEach(col => {
+        worksheet.getColumn(col).width = 15;
+      });
       worksheet.getCell(`B${startRow + 2}`).alignment = {
       wrapText: true,
       vertical: "middle",
@@ -158,12 +168,16 @@ const ExportAssign = {
             row = startRow + 9 + (slot.period - 1);
           }
           if (col && row) {
-            worksheet.getCell(`${col}${row}`).value = `${slot.subjectName}\n(${slot.className || slot.class})`;
+            const classroom = classrooms.find(c => String(c._id) === String(slot.class));
+            const className = classroom ? classroom.name : '';
+            worksheet.getCell(`${col}${row}`).value = `${slot.subjectName}\n(${className})`;
             worksheet.getCell(`${col}${row}`).alignment = {
               wrapText: true,
               vertical: "middle",
               horizontal: "center",
             };
+            const lineCount = 2; 
+            worksheet.getRow(row).height = lineCount * 20; 
           }
         });
 

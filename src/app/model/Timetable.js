@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const TimetableSlotSchema = new mongoose.Schema({
   class: { type: mongoose.Schema.Types.ObjectId, ref: 'Classrom', required: true },
-  subject: { type: mongoose.Schema.Types.ObjectId, ref: 'Subject', required: true },
+  subject: { type: mongoose.Schema.Types.ObjectId, ref: 'Subject', required: false, default: null },
   subjectName: { type: String, required: true, trim: true },
   teacher: { type: String, required: true, trim: true }, // tên giáo viên
   day: { type: Number, required: true, min: 2, max: 8 }, // 2=Thứ2 ... 8=CN
