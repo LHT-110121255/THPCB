@@ -201,7 +201,9 @@ document.addEventListener("DOMContentLoaded", function () {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-            }
+                'Authorization': `Bearer ${sessionStorage.getItem('token') || ''}`
+            },
+            credentials: 'include'
         })
         .then(response => response.json())
         .then(data => {
@@ -219,9 +221,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         })
         .catch(error => {
-            if(role !== 'school_admin' && role !== 'teacher' && role !== 'student') {
-                Swal.fire('Lỗi', 'Không thể lấy danh sách module thống kê', 'error');
-            }
+                // Swal.fire('Lỗi', 'Không thể lấy danh sách module thống kê', 'error');
             console.error('Error fetching modules:', error);
         });
     }
